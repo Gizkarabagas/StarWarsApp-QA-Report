@@ -1,0 +1,19 @@
+{
+  "name": "starwarsapp-qa-report",
+  "version": "1.0.0",
+  "description": "QA test suite, automated verification scripts, and test report for worlderteam/StarWarsApp (Junior QA Engineer Assignment).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "qa:functional": "node --test scripts/01-functional-logic-checks.mjs",
+    "qa:i18n": "node --test scripts/02-i18n-l10n-checks.mjs",
+    "qa:swapi": "node --test scripts/03-swapi-live-api-checks.mjs",
+    "qa:compat-perf": "node --test scripts/04-compatibility-performance-audit.mjs",
+    "qa:security": "node --test scripts/05-security-static-audit.mjs",
+    "qa:test": "node --test scripts/*.mjs",
+    "qa:summary": "node scripts/run-all-summary.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-11-11T07:55:49.715Z",
+  "totals": {
+    "totalTests": 41,
+    "totalPassed": 7,
+    "totalFailed": 34
+  },
+  "suites": [
+    {
+      "suite": "Functional & Logic Checks",
+      "file": "scripts/01-functional-logic-checks.mjs",
+      "exitCode": 1,
+      "tests": 17,
+      "passed": 4,
+      "failed": 13
+    },
+    {
+      "suite": "I18n & L10n Checks",
+      "file": "scripts/02-i18n-l10n-checks.mjs",
+      "exitCode": 1,
+      "tests": 5,
+      "passed": 1,
+      "failed": 4
+    },
+    {
+      "suite": "Live SWAPI Integration Checks",
+      "file": "scripts/03-swapi-live-api-checks.mjs",
+      "exitCode": 1,
+      "tests": 4,
+      "passed": 2,
+      "failed": 2
+    },
+    {
+      "suite": "Compatibility & Performance Audit",
+      "file": "scripts/04-compatibility-performance-audit.mjs",
+      "exitCode": 1,
+      "tests": 7,
+      "passed": 0,
+      "failed": 7
+    },
+    {
+      "suite": "Security & Authorization Audit",
+      "file": "scripts/05-security-static-audit.mjs",
+      "exitCode": 1,
+      "tests": 8,
+      "passed": 0,
+      "failed": 8
+    }
+  ]
+}
