@@ -11,7 +11,7 @@ const htmlContent = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QA Test Report — StarWarsApp</title>
+  <title>QA Assessment Report & Interview Dashboard — StarWarsApp</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -41,11 +41,10 @@ const htmlContent = `<!DOCTYPE html>
       font-size: 15px;
     }
 
-    /* Layout */
     .app-header {
       background: #0f172a;
       color: white;
-      padding: 24px 32px;
+      padding: 22px 32px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -58,7 +57,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .app-title h1 {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -96,11 +95,10 @@ const htmlContent = `<!DOCTYPE html>
 
     .main-container {
       max-width: 1200px;
-      margin: 32px auto;
+      margin: 28px auto;
       padding: 0 24px 80px;
     }
 
-    /* Tab Switcher */
     .tab-bar {
       display: flex;
       gap: 8px;
@@ -109,7 +107,7 @@ const htmlContent = `<!DOCTYPE html>
       border-radius: 10px;
       margin-bottom: 28px;
       position: sticky;
-      top: 86px;
+      top: 84px;
       z-index: 90;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
@@ -132,7 +130,6 @@ const htmlContent = `<!DOCTYPE html>
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    /* KPI Cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -148,7 +145,7 @@ const htmlContent = `<!DOCTYPE html>
       display: flex;
       flex-direction: column;
     }
-    .kpi-card .label { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-card .label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .kpi-card .value { font-size: 28px; font-weight: 800; margin: 8px 0 4px; }
     .kpi-card .sub { font-size: 12px; color: var(--text-muted); }
     .kpi-danger .value { color: var(--danger); }
@@ -156,7 +153,6 @@ const htmlContent = `<!DOCTYPE html>
     .kpi-success .value { color: var(--success); }
     .kpi-primary .value { color: var(--primary); }
 
-    /* Verdict Banner */
     .verdict-banner {
       background: var(--danger-light);
       border-left: 6px solid var(--danger);
@@ -171,7 +167,6 @@ const htmlContent = `<!DOCTYPE html>
     .verdict-body h3 { font-size: 18px; color: #991b1b; font-weight: 700; margin-bottom: 4px; }
     .verdict-body p { font-size: 14px; color: #7f1d1d; }
 
-    /* Content Cards */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -181,7 +176,7 @@ const htmlContent = `<!DOCTYPE html>
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .card-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--text);
       margin-bottom: 16px;
@@ -192,7 +187,19 @@ const htmlContent = `<!DOCTYPE html>
       padding-bottom: 12px;
     }
 
-    /* Badges */
+    .pitch-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 5px solid #16a34a;
+      border-radius: 8px;
+      padding: 18px 22px;
+      font-size: 15px;
+      color: #14532d;
+      margin: 16px 0;
+      font-style: italic;
+      line-height: 1.7;
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -211,7 +218,22 @@ const htmlContent = `<!DOCTYPE html>
     .badge-fail { background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; }
     .badge-blocked { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
-    /* Defect Card Grid */
+    .table-responsive { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 13px; }
+    tr:hover { background: #fafafa; }
+
+    .qa-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      background: white;
+    }
+    .qa-q { font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 15px; }
+    .qa-a { color: #475569; font-size: 14px; line-height: 1.6; }
+
     .defect-controls {
       display: flex;
       flex-wrap: wrap;
@@ -241,11 +263,7 @@ const htmlContent = `<!DOCTYPE html>
     }
     .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    .defect-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .defect-list { display: flex; flex-direction: column; gap: 16px; }
     .defect-card {
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -292,49 +310,6 @@ const htmlContent = `<!DOCTYPE html>
       color: #0f172a;
     }
 
-    /* Clean Tables */
-    .table-responsive { overflow-x: auto; margin: 16px 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 13px; }
-    tr:hover { background: #fafafa; }
-
-    /* Step Timeline */
-    .step-list { list-style: none; margin: 16px 0; }
-    .step-item {
-      position: relative;
-      padding-left: 32px;
-      margin-bottom: 20px;
-    }
-    .step-item::before {
-      content: "";
-      position: absolute;
-      left: 10px;
-      top: 24px;
-      bottom: -16px;
-      width: 2px;
-      background: #cbd5e1;
-    }
-    .step-item:last-child::before { display: none; }
-    .step-badge {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .step-title { font-weight: 700; color: var(--text); font-size: 15px; margin-bottom: 4px; }
-    .step-desc { font-size: 14px; color: #475569; }
-
-    /* Print styling */
     @media print {
       .app-header, .tab-bar, .defect-controls, .btn { display: none !important; }
       body { background: white; font-size: 12pt; }
@@ -345,7 +320,6 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body>
 
-  <!-- Top App Header -->
   <header class="app-header">
     <div class="app-title">
       <h1>⭐ QA Assessment Dashboard — StarWarsApp</h1>
@@ -353,215 +327,185 @@ const htmlContent = `<!DOCTYPE html>
     </div>
     <div class="header-actions">
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
-      <button class="btn btn-primary" onclick="switchTab('id')">🇮🇩 Ringkasan Bahasa Indonesia</button>
-      <button class="btn btn-primary" onclick="switchTab('en')">🇬🇧 Official English Report</button>
+      <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary (English)</button>
+      <button class="btn btn-primary" onclick="switchTab('report')">📄 Formal QA Report</button>
+      <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer</button>
     </div>
   </header>
 
-  <!-- Sticky Tabs -->
   <div class="main-container">
     <div class="tab-bar">
-      <button class="tab-btn active" id="tab-btn-id" onclick="switchTab('id')">📋 Ringkasan Cepat & Paling Enak Dibaca (Bahasa Indonesia)</button>
-      <button class="tab-btn" id="tab-btn-en" onclick="switchTab('en')">📄 Full Official QA Report (English / Submission)</button>
+      <button class="tab-btn active" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
+      <button class="tab-btn" id="tab-btn-report" onclick="switchTab('report')">📄 Official QA Test Report (Full Spec)</button>
       <button class="tab-btn" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (34 Bugs)</button>
     </div>
 
-    <!-- TAB 1: INDONESIAN EXECUTIVE SUMMARY (ENAK DIBACA) -->
-    <div id="tab-id" class="tab-content">
-      <!-- KPI Stats -->
+    <!-- TAB 1: QUICK EXECUTIVE SUMMARY & TALKING POINTS (ENGLISH) -->
+    <div id="tab-summary" class="tab-content">
       <div class="kpi-grid">
         <div class="kpi-card kpi-danger">
-          <span class="label">Status Rilis</span>
+          <span class="label">Release Verdict</span>
           <span class="value">NOT READY</span>
-          <span class="sub">Belum layak rilis ke publik</span>
+          <span class="sub">Production blocked by fatal errors</span>
         </div>
         <div class="kpi-card kpi-danger">
-          <span class="label">Total Bug Ditemukan</span>
-          <span class="value">34 Defect</span>
-          <span class="sub">Dari 41 uji verifikasi otomatis</span>
+          <span class="label">Confirmed Defects</span>
+          <span class="value">34 Bugs</span>
+          <span class="sub">Across 41 automated checks</span>
         </div>
         <div class="kpi-card kpi-warning">
           <span class="label">Blocker / Critical</span>
-          <span class="value">5 Isu Fatal</span>
-          <span class="sub">Login macet, crash notifikasi, security</span>
+          <span class="value">5 Issues</span>
+          <span class="sub">Login failure, crash, plaintext passwords</span>
         </div>
         <div class="kpi-card kpi-success">
-          <span class="label">Uji Lolos (Pass)</span>
-          <span class="value">7 Uji</span>
-          <span class="sub">Validasi form, API online, tab logic</span>
+          <span class="label">Verified Pass</span>
+          <span class="value">7 Checks</span>
+          <span class="sub">Password regex, API online, tabs</span>
         </div>
       </div>
 
-      <!-- Verdict Banner -->
       <div class="verdict-banner">
-        <div class="verdict-icon">⚠️</div>
+        <div class="verdict-icon">🛑</div>
         <div class="verdict-body">
-          <h3>Kesimpulan Eksekutif: Aplikasi Tidak Siap Rilis</h3>
-          <p>Meskipun arsitektur dasarnya bagus (React Native, React Query, MMKV, SWAPI), terdapat <strong>dua bug sepele namun fatal</strong> (variabel <code>Platform</code> yang lupa di-import) yang menyebabkan <strong>100% user tidak bisa login</strong> dan <strong>aplikasi langsung crash saat membuka notifikasi undangan grup</strong>. Ditambah lagi, password disimpan dalam bentuk teks biasa (plaintext) tanpa enkripsi.</p>
+          <h3>Executive Release Verdict: NOT READY FOR PRODUCTION</h3>
+          <p>Two fundamental coding omissions (undeclared <code>Platform</code> imports) cause <strong>100% of user logins to fail</strong> and <strong>the app to crash immediately</strong> upon viewing group notifications. In addition, user credentials are stored in <strong>unencrypted plaintext</strong>, and StarWarsAPI search is non-functional.</p>
         </div>
       </div>
 
-      <!-- Top 5 Fatal Bugs Card -->
+      <!-- 60-Second Elevator Pitch -->
       <div class="card">
-        <div class="card-title">🔥 5 Masalah Utama Paling Kritis (Wajib Disebut Pas Interview)</div>
+        <div class="card-title">🎤 Your 60-Second Opening Pitch for the Interview (Speak this!)</div>
+        <div class="pitch-box">
+          "Hello team! I've conducted a comprehensive end-to-end QA assessment on StarWarsApp across all five core pillars: Functional, Compatibility, Usability, Performance, and Security.<br><br>
+          My bottom-line verdict is that <strong>the application is currently NOT ready for release</strong>. Out of 41 automated checks and manual code audits, I identified <strong>34 confirmed defects</strong>.<br><br>
+          The two most critical showstoppers are <strong>missing <code>Platform</code> imports</strong>: one in <code>LoginScreen</code> that <strong>blocks 100% of user logins</strong>, and one in <code>GroupHomeScreen</code> that <strong>crashes the app immediately</strong> when viewing group notifications. Furthermore, passwords are stored in <strong>plaintext</strong>, SWAPI search is ignored by the server, and the UI breaks when rotated to landscape. I've prepared full reproduction steps and one-line patch remedies in my report."
+        </div>
+      </div>
+
+      <!-- The Big 5 Showstoppers -->
+      <div class="card">
+        <div class="card-title">🔥 The "Big 5" Showstoppers (The Top Defects to Present)</div>
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
-                <th style="width: 180px;">Masalah</th>
-                <th style="width: 220px;">File & Lokasi</th>
-                <th>Dampak Nyata ke User</th>
-                <th>Penyebab & Solusi Singkat</th>
+                <th style="width: 170px;">Defect</th>
+                <th style="width: 220px;">Source Location</th>
+                <th>Real-World Impact</th>
+                <th>Root Cause & Remedy</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><span class="badge badge-blocker">Blocker</span> <strong>Login Gagal 100%</strong></td>
+                <td><span class="badge badge-blocker">Blocker</span> <strong>100% Login Failure</strong></td>
                 <td><code>LoginScreen/index.js</code> (L51)</td>
-                <td>Semua user yang coba login selalu ditolak dengan pesan: <em>"You must allow location permission on this app to login"</em>.</td>
-                <td>Developer memakai <code>Platform.OS === 'android'</code> tapi <strong>lupa import <code>Platform</code></strong> dari <code>'react-native'</code>. Cukup tambah <code>Platform</code> di import, langsung sembuh!</td>
+                <td>Users cannot log in under any circumstances. Always errors with: <em>"You must allow location permission on this app to login"</em>.</td>
+                <td>Code uses <code>Platform.OS === 'android'</code> but <strong>never imported <code>Platform</code></strong> from <code>'react-native'</code>. Throws <code>ReferenceError</code> caught by fallback.</td>
               </tr>
               <tr>
-                <td><span class="badge badge-critical">Critical</span> <strong>Crash Saat Notifikasi Masuk</strong></td>
+                <td><span class="badge badge-critical">Critical</span> <strong>App Crashes on Invite Notification</strong></td>
                 <td><code>GroupHomeScreen/index.js</code> (L102)</td>
-                <td>Saat Darth Vader login setelah diundang ke grup "Rebel Alliance", <strong>aplikasi langsung force-close/crash</strong>.</td>
-                <td>Penyebabnya sama persis: fungsi notifikasi memakai <code>Platform.OS</code> tanpa import <code>Platform</code>.</td>
+                <td>When Darth Vader logs in after Luke invites him, <strong>the application crashes immediately</strong> upon viewing the Home tab.</td>
+                <td>Identical root cause: <code>sendPushNotification()</code> calls <code>Platform.OS === 'ios'</code> without importing <code>Platform</code>.</td>
               </tr>
               <tr>
-                <td><span class="badge badge-critical">Critical</span> <strong>Password Plaintext (Tanpa Enkripsi)</strong></td>
+                <td><span class="badge badge-critical">Critical</span> <strong>Plaintext Password Storage</strong></td>
                 <td><code>Storages.js</code> & <code>apiServices.js</code></td>
-                <td>Data akun dan password tersimpan telanjang di memori HP. Siapa pun yang mengambil file database lokal bisa melihat password asli user.</td>
-                <td>MMKV diinisialisasi tanpa password (<code>new MMKV()</code>) dan tidak ada hashing password (bcrypt/Argon2).</td>
+                <td>Zero data confidentiality. Any attacker with device backup or ADB file access can read all user emails and plaintext passwords.</td>
+                <td><code>new MMKV()</code> is created without an encryption key; raw passwords are saved in <code>LIST_USER</code> and compared with <code>===</code>.</td>
               </tr>
               <tr>
-                <td><span class="badge badge-high">High</span> <strong>Pencarian Karakter SWAPI Rusak</strong></td>
+                <td><span class="badge badge-high">High</span> <strong>SWAPI Search Ignored</strong></td>
                 <td><code>SwapiScreen/index.js</code></td>
-                <td>User mengetik <em>"vader"</em>, tapi yang muncul <strong>tetap seluruh 82 karakter</strong> mulai dari Luke Skywalker.</td>
-                <td>Server <code>swapi.info</code> mengabaikan parameter <code>?search=</code>. Harus diubah jadi filter lokal (client-side) di HP.</td>
+                <td>Searching for <em>"vader"</em> or <em>"falcon"</em> still shows all 82 characters from Luke Skywalker onwards.</td>
+                <td>Live HTTPS test proves <code>swapi.info</code> <strong>ignores the <code>?search=</code> query</strong>. Fix: implement client-side array filtering in JavaScript.</td>
               </tr>
               <tr>
-                <td><span class="badge badge-high">High</span> <strong>Peta GPS Dimatikan & Galeri Hilang</strong></td>
+                <td><span class="badge badge-high">High</span> <strong>Map Disabled & No Gallery Upload</strong></td>
                 <td><code>GroupDetailScreen</code> & <code>RegisterScreen</code></td>
-                <td>Peta GPS di-comment out (cuma muncul angka koordinat). Pas daftar, cuma ada kamera, <strong>tidak ada opsi galeri foto</strong> (melanggar syarat #2).</td>
-                <td>Komponen <code>MapView</code> di-comment (Paid Account needed). Belum dipasang library <code>react-native-image-picker</code>.</td>
+                <td>Interactive map is commented out (raw numbers only). Registration only has a camera, <strong>missing image gallery upload</strong> (Req #2).</td>
+                <td><code>MapView</code> commented out (<em>Paid Account needed</em>); no <code>react-native-image-picker</code> library installed.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- 13 Requirements Check -->
+      <!-- Quick 13-Requirement Table -->
       <div class="card">
-        <div class="card-title">📋 Status Pemenuhan 13 Persyaratan Aplikasi di PDF</div>
+        <div class="card-title">📋 13-Requirement Fast Reference Matrix</div>
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
                 <th style="width: 50px;">Req</th>
-                <th style="width: 250px;">Deskripsi Syarat</th>
-                <th style="width: 100px;">Status</th>
-                <th>Catatan Hasil Uji QA</th>
+                <th style="width: 260px;">Requirement Description</th>
+                <th style="width: 110px;">Status</th>
+                <th>Interview Fast Fact</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>#1</td><td>Registrasi & Password (Luke & Vader)</td><td><span class="badge badge-pass">PASS (Form)</span></td><td>Rumus password lolos untuk Luke & Vader. Tapi email huruf besar/kecil bikin gagal login.</td></tr>
-              <tr><td>#2</td><td>Upload Foto Kamera / Galeri</td><td><span class="badge badge-fail">FAIL</span></td><td>Cuma ada kamera; opsi galeri foto sama sekali tidak ada. Foto yang dijepret tidak bisa diulang.</td></tr>
-              <tr><td>#3</td><td>Login dengan Email & Password</td><td><span class="badge badge-blocker">BLOCKER</span></td><td>Lupa import <code>Platform</code> membuat login gagal 100%. "Forget Password" cuma console.log.</td></tr>
-              <tr><td>#4</td><td>Profil User & Data SWAPI</td><td><span class="badge badge-fail">FAIL</span></td><td>Data tinggi/berat/gender muncul, tapi nama lengkap user hilang di layar Profil.</td></tr>
-              <tr><td>#5</td><td>Buat Grup & Undang User Lain</td><td><span class="badge badge-fail">FAIL</span></td><td>Teks error dan placeholder tertukar. Jika batal pilih pesawat, anggota yang diundang terhapus.</td></tr>
-              <tr><td>#6</td><td>Notifikasi In-App Undangan Grup</td><td><span class="badge badge-critical">CRASH</span></td><td>Crash fatal saat membuka notifikasi karena lupa import <code>Platform</code>.</td></tr>
-              <tr><td>#7</td><td>User Bisa Join Grup Undangan</td><td><span class="badge badge-pass">PASS</span></td><td>Tombol join berfungsi memindahkan grup dari tab Unjoined ke Joined.</td></tr>
-              <tr><td>#8</td><td>Peta & Lokasi GPS Anggota</td><td><span class="badge badge-fail">FAIL</span></td><td>Komponen Peta dimatikan. Data GPS anggota bocor ke user yang belum join grup (privasi).</td></tr>
-              <tr><td>#9</td><td>Profil Pesawat Interaktif via SWAPI</td><td><span class="badge badge-fail">FAIL</span></td><td>Hanya teks statis 9 baris, tidak interaktif, dan mendorong daftar anggota keluar layar.</td></tr>
-              <tr><td>#10</td><td>Desain Mengikuti Adobe XD</td><td><span class="badge badge-blocked">BLOCKED</span></td><td>Tautan file XD di PDF membutuhkan login/akses akun dari penguji.</td></tr>
-              <tr><td>#11</td><td>Skema Auth & Otorisasi</td><td><span class="badge badge-fail">FAIL</span></td><td>Password plain-text di MMKV, koneksi cleartext HTTP <code>localhost:3000</code>.</td></tr>
-              <tr><td>#12</td><td>Tampilan Landscape & Tablet</td><td><span class="badge badge-fail">FAIL</span></td><td>Ukuran layar dibekukan saat buka app (<code>Object.freeze</code>). Layar miring membuat UI hancur.</td></tr>
-              <tr><td>#13</td><td>Dukungan I18n & L10n (ID & EN)</td><td><span class="badge badge-fail">FAIL</span></td><td>Bahasa Inggris di-hardcode (<code>lng: 'en'</code>), menimpa setelan HP. Masih ada alert berbahasa Inggris.</td></tr>
+              <tr><td>#1</td><td>Register Luke & Vader accounts</td><td><span class="badge badge-pass">PASS (Form)</span></td><td>Password regex passes. Mixed-case emails fail login due to unnormalized storage.</td></tr>
+              <tr><td>#2</td><td>Upload photo via Camera or Gallery</td><td><span class="badge badge-fail">FAIL</span></td><td>Camera snapshot only. Zero gallery/library upload option implemented.</td></tr>
+              <tr><td>#3</td><td>Login with email & password</td><td><span class="badge badge-blocker">BLOCKER</span></td><td>Missing <code>Platform</code> import blocks all logins. "Forget Password" is a <code>console.log</code>.</td></tr>
+              <tr><td>#4</td><td>Profile displays SWAPI particulars</td><td><span class="badge badge-fail">FAIL</span></td><td>Height, mass, gender show up, but user full name is omitted on profile screen.</td></tr>
+              <tr><td>#5</td><td>Create group & invite (Rebel Alliance)</td><td><span class="badge badge-fail">FAIL</span></td><td>Error & placeholder text swapped; returning from starship picker wipes members.</td></tr>
+              <tr><td>#6</td><td>In-app group invitation notification</td><td><span class="badge badge-critical">CRASH</span></td><td>App crashes upon viewing notifications due to missing <code>Platform</code> import.</td></tr>
+              <tr><td>#7</td><td>Join invited group</td><td><span class="badge badge-pass">PASS</span></td><td>Joining works in English; tab matching breaks if initial language is Indonesian.</td></tr>
+              <tr><td>#8</td><td>Group profile shows members & GPS</td><td><span class="badge badge-fail">FAIL</span></td><td>MapView is commented out. GPS coordinates leak to unjoined invitees (privacy).</td></tr>
+              <tr><td>#9</td><td>Interactive Starship info via SWAPI</td><td><span class="badge badge-fail">FAIL</span></td><td>Only 9 static text lines. Pushes member list completely off-screen.</td></tr>
+              <tr><td>#10</td><td>Follow Adobe XD design</td><td><span class="badge badge-blocked">BLOCKED</span></td><td>Hyperlink in PDF requires account sign-in/access permission from interviewers.</td></tr>
+              <tr><td>#11</td><td>Auth & authorization scheme</td><td><span class="badge badge-fail">FAIL</span></td><td>Plaintext passwords in MMKV, cleartext HTTP <code>localhost:3000</code>.</td></tr>
+              <tr><td>#12</td><td>Portrait & Landscape (phone & tablet)</td><td><span class="badge badge-fail">FAIL</span></td><td>Dimensions are frozen at boot (<code>Object.freeze</code>); rotating breaks UI layout.</td></tr>
+              <tr><td>#13</td><td>Support for I18n and L10n (ID & EN)</td><td><span class="badge badge-fail">FAIL</span></td><td>Hardcoded <code>lng: 'en'</code> overrides device language; untranslated alerts remain.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Quick Action Steps -->
+      <!-- Top Interview Questions & Answers -->
       <div class="card">
-        <div class="card-title">🚀 5 Langkah Rekomendasi Solusi Cepat (Bisa Kamu Sebutkan Pas Interview)</div>
-        <ol class="step-list">
-          <li class="step-item">
-            <span class="step-badge">1</span>
-            <div class="step-title">Fix Blocker Crash (Butuh 2 Menit Saja)</div>
-            <div class="step-desc">Tambahkan <code>Platform</code> di baris import <code>'react-native'</code> pada <code>LoginScreen/index.js</code> dan <code>GroupHomeScreen/index.js</code>. Login dan notifikasi langsung berjalan normal!</div>
-          </li>
-          <li class="step-item">
-            <span class="step-badge">2</span>
-            <div class="step-title">Normalisasi Input Email</div>
-            <div class="step-desc">Gunakan <code>email.trim().toLowerCase()</code> saat registrasi dan login, serta tambahkan <code>autoCapitalize="none"</code> pada TextInput agar keyboard HP tidak otomatis memberi huruf kapital.</div>
-          </li>
-          <li class="step-item">
-            <span class="step-badge">3</span>
-            <div class="step-title">Fix Pencarian SWAPI di Sisi Klien</div>
-            <div class="step-desc">Unduh seluruh daftar orang/pesawat 1 kali saja dari <code>swapi.info</code> saat aplikasi dibuka, lalu lakukan pencarian lokal (filter array) di HP agar responsif dan tidak mengirim request sia-sia.</div>
-          </li>
-          <li class="step-item">
-            <span class="step-badge">4</span>
-            <div class="step-title">Amankan Penyimpanan Kredensial</div>
-            <div class="step-desc">Gunakan <code>new MMKV({ encryptionKey })</code> dengan kunci dari Keychain/Keystore HP, dan jangan pernah menyimpan password plaintext di dalam database lokal.</div>
-          </li>
-          <li class="step-item">
-            <span class="step-badge">5</span>
-            <div class="step-title">Dukung Layar Miring & Tablet</div>
-            <div class="step-desc">Hapus <code>Object.freeze(Metrics)</code> statis di <code>GlobalConfig.js</code>, dan ganti dengan hook bawaan React Native <code>useWindowDimensions()</code> agar otomatis menyesuaikan saat layar diputar.</div>
-          </li>
-        </ol>
+        <div class="card-title">💡 Anticipated Interview Q&A (Practice These Answers!)</div>
+        <div class="qa-card">
+          <div class="qa-q">Q: "Why did you classify the missing Platform import as a Blocker?"</div>
+          <div class="qa-a"><strong>A:</strong> "In QA, a Blocker halts the primary user journey with zero workarounds. Because <code>Platform</code> is undefined, <code>requestLocationPermission()</code> throws an uncaught ReferenceError in <code>LoginScreen</code>. This forces the permission check to return false, blocking 100% of users from logging in. Without login, users cannot create groups, view profiles, or interact with the app."</div>
+        </div>
+        <div class="qa-card">
+          <div class="qa-q">Q: "How did you discover the StarWarsAPI search defect?"</div>
+          <div class="qa-a"><strong>A:</strong> "I examined <code>apiCallers.js</code> and noticed the host was <code>swapi.info</code>. I wrote an automated integration script to execute a live HTTPS query for <code>https://swapi.info/api/people/?search=vader</code>. The response returned an unpaginated array of all 82 characters, proving that <code>swapi.info</code> ignores search query params. The solution is to fetch once into React Query and filter client-side in JavaScript."</div>
+        </div>
+        <div class="qa-card">
+          <div class="qa-q">Q: "What are the biggest security vulnerabilities in this app?"</div>
+          <div class="qa-a"><strong>A:</strong> "Two major items: First, <strong>Insecure Data Storage (OWASP M2):</strong> MMKV is initialized without an encryption key, storing plaintext passwords. Second, <strong>Broken Authorization / Privacy Leak (OWASP M1):</strong> In <code>GroupDetailScreen</code>, members' exact GPS coordinates are sent and displayed to users who haven't accepted the group invite yet."</div>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 2: FULL OFFICIAL ENGLISH REPORT -->
-    <div id="tab-en" class="tab-content" style="display: none;">
+    <!-- TAB 2: FORMAL OFFICIAL REPORT -->
+    <div id="tab-report" class="tab-content" style="display: none;">
       <div class="card">
-        <div class="card-title">📄 Official QA Test Report (Executive Specification)</div>
-        <p style="margin-bottom: 20px; color: var(--text-muted);">This is the formal documentation matching the submission standards requested in the interview PDF. You can read the complete uncompressed document in <a href="./QA_TEST_REPORT.md" target="_blank"><code>QA_TEST_REPORT.md</code></a>.</p>
+        <div class="card-title">📄 Complete Formal QA Test Report</div>
+        <p style="margin-bottom: 20px; color: var(--text-muted);">The full formal report matching the assignment submission specifications is also maintained in markdown at <a href="./QA_TEST_REPORT.md" target="_blank"><code>QA_TEST_REPORT.md</code></a>.</p>
         
-        <h3 style="margin: 20px 0 10px; color: var(--primary);">1. Test Strategy & Rationale</h3>
-        <p>A risk-based verification approach was applied against commit <code>6ffa4f5</code>. Given the 1-week timeline, priority was given to user-blocking authentication exceptions, credential confidentiality, and cross-platform native stability. Testing combined static code AST inspections, dependency verification, live SWAPI integration checks, and automated functional validations.</p>
+        <h3 style="margin: 20px 0 10px; color: var(--primary);">1. Test Strategy & Risk-Based Rationale</h3>
+        <p>Testing was prioritized around critical authentication exceptions, data privacy, and cross-platform native stability. Due to the 1-week timeline, verification combined automated AST checks, dependency verification, live API contract tests, and line-by-line manual code traces.</p>
 
-        <h3 style="margin: 24px 0 10px; color: var(--primary);">2. Automated Toolchain & Baseline Execution Results</h3>
+        <h3 style="margin: 24px 0 10px; color: var(--primary);">2. Automated Baseline Results</h3>
         <div class="code-box">
-Target Repo Unit Test:  FAIL (yarn test --watchAll=false -> __tests__/App.test.tsx imports non-existent ../App)
+Target Repo Unit Test:  FAIL (yarn test -> __tests__/App.test.tsx imports non-existent ../App)
 Target Repo Linter:     FAIL (yarn lint -> 244 problems: 20 fatal errors, 224 warnings)
 Automated QA Suite:     41 checks executed -> 7 Passed, 34 Defect Assertions Confirmed
 Live SWAPI Check:       Endpoint online, but ignores ?search= queries and omits pagination keys
         </div>
 
-        <h3 style="margin: 24px 0 10px; color: var(--primary);">3. Verified Test Matrix Summary (41 Checks)</h3>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Suite Category</th>
-                <th>Checks</th>
-                <th>Pass</th>
-                <th>Fail (Defects)</th>
-                <th>Primary Impact</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Functional & Business Logic</td><td>17</td><td>4</td><td>13</td><td>Fatal Login / Notification ReferenceErrors, missing gallery upload</td></tr>
-              <tr><td>I18n & Localization (L10n)</td><td>5</td><td>1</td><td>4</td><td>Hardcoded 'en' overrides locale detector; missing keys; hardcoded alerts</td></tr>
-              <tr><td>Live SWAPI Integration</td><td>4</td><td>2</td><td>2</td><td>Search parameter ignored by server; data.next pagination broken</td></tr>
-              <tr><td>Compatibility & Performance</td><td>7</td><td>0</td><td>7</td><td>Frozen window dimensions break landscape; base64 image memory leak</td></tr>
-              <tr><td>Security & Privacy</td><td>8</td><td>0</td><td>8</td><td>Plaintext password storage in unencrypted MMKV; hardcoded API keys</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h3 style="margin: 24px 0 10px; color: var(--primary);">4. Proposed 5-Day Completion Plan for Remaining Device Tasks</h3>
-        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">As transparently documented in the report, physical Android/iOS emulator runs and Adobe XD pixel-matching are scheduled across the remaining interview window:</p>
+        <h3 style="margin: 24px 0 10px; color: var(--primary);">3. Proposed 5-Day Completion Plan for Device Tasks</h3>
         <ul style="padding-left: 20px; font-size: 14px; line-height: 1.8;">
           <li><strong>Day 1:</strong> Clarify Adobe XD login access & backend API endpoint with hiring team.</li>
           <li><strong>Day 2:</strong> Execute Android AVD matrix (API 29, API 34, 10" Tablet) with Android Studio Profiler.</li>
           <li><strong>Day 3:</strong> Build on macOS/Xcode simulator (iPhone 15 Pro, iPad Air) verifying iOS push & safe areas.</li>
           <li><strong>Day 4:</strong> Pixel-for-pixel Adobe XD comparison and WCAG AA contrast audit.</li>
-          <li><strong>Day 5:</strong> Rehearse 10-minute live demonstration and present findings to interview panel.</li>
+          <li><strong>Day 5:</strong> Rehearse live demonstration and present findings to interview panel.</li>
         </ul>
       </div>
     </div>
@@ -581,144 +525,74 @@ Live SWAPI Check:       Endpoint online, but ignores ?search= queries and omits 
         </div>
 
         <div class="defect-list" id="defectList">
-          <!-- Defect 1 -->
           <div class="defect-card" data-cat="blocker functional">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-blocker">Blocker</span>
-                BUG-FUNC-09: Missing Platform import completely breaks Login
-              </div>
+              <div class="defect-id-title"><span class="badge badge-blocker">Blocker</span> BUG-FUNC-09: Missing Platform import completely breaks Login</div>
               <span class="defect-meta">src/screens/LoginScreen/index.js:51</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> 100% of login attempts fail with <em>"You must allow location permission on this app to login"</em> regardless of granted permissions.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>Platform.OS === 'android'</code> is called without importing <code>Platform</code> from <code>react-native</code>, triggering an uncaught <code>ReferenceError</code> inside the location permission handler.</div>
+            <div class="defect-section"><strong>User Impact:</strong> 100% of login attempts fail with <em>"You must allow location permission on this app to login"</em>.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> <code>Platform.OS === 'android'</code> is called without importing <code>Platform</code> from <code>react-native</code>, triggering an uncaught <code>ReferenceError</code>.</div>
             <div class="code-box">// Remedy: Add Platform to react-native imports in LoginScreen/index.js\nimport { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, ... } from 'react-native';</div>
           </div>
 
-          <!-- Defect 2 -->
           <div class="defect-card" data-cat="blocker functional">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-critical">Critical</span>
-                BUG-FUNC-21: Missing Platform import crashes app on Group Invitation
-              </div>
+              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-FUNC-21: Missing Platform import crashes app on Group Invitation</div>
               <span class="defect-meta">src/screens/GroupHomeScreen/index.js:102</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> When an invited user (e.g. Darth Vader) logs in and views their home tab, the app abruptly crashes / force-closes.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>sendPushNotification()</code> evaluates <code>Platform.OS === 'ios'</code> without importing <code>Platform</code>, throwing an unhandled <code>ReferenceError</code>.</div>
+            <div class="defect-section"><strong>User Impact:</strong> When an invited user (e.g. Darth Vader) logs in, the app abruptly crashes upon opening Home.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> <code>sendPushNotification()</code> evaluates <code>Platform.OS === 'ios'</code> without importing <code>Platform</code>.</div>
             <div class="code-box">// Remedy: Add Platform import in GroupHomeScreen/index.js\nimport { View, Text, FlatList, Image, TouchableOpacity, Platform } from 'react-native';</div>
           </div>
 
-          <!-- Defect 3 -->
           <div class="defect-card" data-cat="blocker security">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-critical">Critical</span>
-                BUG-SEC-01: Plaintext password storage and comparison in MMKV
-              </div>
+              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-SEC-01: Plaintext password storage and comparison in MMKV</div>
               <span class="defect-meta">src/utils/Storages.js:3 & apiServices.js:25</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> Any malicious app or physical attacker accessing local app files can extract every user's plaintext password.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>new MMKV()</code> is created without an encryption key; passwords are stored unhashed in <code>LIST_USER</code> and compared with <code>===</code>.</div>
-            <div class="code-box">// Remedy: Hash passwords server-side or via PBKDF2/bcrypt, and initialize MMKV with keychain-backed key:\nexport const storage = new MMKV({ id: 'starwars-secure', encryptionKey: secureKeyFromKeychain });</div>
+            <div class="defect-section"><strong>User Impact:</strong> Full credential theft: Passwords are saved in unencrypted plaintext in local storage.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> <code>new MMKV()</code> has no encryption key; login validates via raw <code>===</code> equality.</div>
+            <div class="code-box">// Remedy: Hash passwords and pass encryptionKey from Keystore to MMKV:\nexport const storage = new MMKV({ id: 'starwars-secure', encryptionKey: secureKeyFromKeychain });</div>
           </div>
 
-          <!-- Defect 4 -->
           <div class="defect-card" data-cat="functional">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-high">High</span>
-                BUG-FUNC-13: SwapiScreen server-side ?search= query ignored by swapi.info
-              </div>
+              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-FUNC-13: SwapiScreen server-side ?search= query ignored by swapi.info</div>
               <span class="defect-meta">src/screens/SwapiScreen/index.js:26</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> Searching for "vader" or "falcon" does not filter results; all 82 characters are displayed starting with Luke Skywalker.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>https://swapi.info/api/people/?search=vader</code> does not implement server-side search and returns the entire unpaginated array.</div>
-            <div class="code-box">// Remedy: Perform client-side debounced array filtering:\nconst filtered = allSwapiData.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));</div>
+            <div class="defect-section"><strong>User Impact:</strong> Searching for "vader" or "falcon" does not filter results; all 82 characters are displayed.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> <code>https://swapi.info/api/people/?search=vader</code> ignores query strings and returns the static array.</div>
+            <div class="code-box">// Remedy: Filter array client-side in JavaScript:\nconst filtered = allSwapiData.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));</div>
           </div>
 
-          <!-- Defect 5 -->
           <div class="defect-card" data-cat="functional">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-high">High</span>
-                BUG-FUNC-06: Missing image library / photo gallery upload option
-              </div>
+              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-FUNC-06: Missing image library / photo gallery upload option</div>
               <span class="defect-meta">src/screens/RegisterScreen/index.js:195</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> Users cannot choose an existing photo from their gallery during registration (violating Requirement #2).</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Only <code>react-native-vision-camera</code> is implemented. No gallery picker package or UI option exists.</div>
-            <div class="code-box">// Remedy: Add react-native-image-picker:\nimport { launchImageLibrary } from 'react-native-image-picker';</div>
+            <div class="defect-section"><strong>User Impact:</strong> Users cannot choose an existing photo from their gallery (violating Requirement #2).</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> Only <code>react-native-vision-camera</code> is implemented; no gallery picker exists.</div>
+            <div class="code-box">// Remedy: Install react-native-image-picker and provide action sheet:\nimport { launchImageLibrary } from 'react-native-image-picker';</div>
           </div>
 
-          <!-- Defect 6 -->
           <div class="defect-card" data-cat="compat">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-high">High</span>
-                BUG-COMP-01: Frozen Dimensions.get('window') breaks Landscape & Tablets
-              </div>
+              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-COMP-01: Frozen Dimensions.get('window') breaks Landscape & Tablets</div>
               <span class="defect-meta">src/utils/GlobalConfig.js:15-20</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> Rotating device to landscape clips forms, freezes camera box proportions, and leaves TabBar unscaled.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Dimensions are frozen at app boot via <code>Object.freeze(Metrics)</code>. <code>useWindowDimensions()</code> is never used.</div>
-            <div class="code-box">// Remedy: Use React Native's responsive hook in components:\nconst { width, height } = useWindowDimensions();</div>
+            <div class="defect-section"><strong>User Impact:</strong> Rotating device to landscape clips forms, freezes camera box, and distorts UI.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> Dimensions are frozen at boot via <code>Object.freeze(Metrics)</code>.</div>
+            <div class="code-box">// Remedy: Adopt React Native responsive hook in components:\nconst { width, height } = useWindowDimensions();</div>
           </div>
 
-          <!-- Defect 7 -->
           <div class="defect-card" data-cat="security">
             <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-high">High</span>
-                BUG-SEC-02: Hardcoded Google Maps API keys committed to repository
-              </div>
-              <span class="defect-meta">android/app/src/main/AndroidManifest.xml:55</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Key quota theft, unauthorized map API billing spikes, and project impersonation.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Live API key <code>AIzaSyDwBmG2L0YadPd3JE-Wku5Bdd-vwk97mdA</code> is hardcoded in AndroidManifest and AppDelegate.mm.</div>
-            <div class="code-box">// Remedy: Restrict key in Google Cloud Console by SHA-1 & Bundle ID; inject via react-native-config (.env).</div>
-          </div>
-
-          <!-- Defect 8 -->
-          <div class="defect-card" data-cat="security">
-            <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-critical">Critical</span>
-                BUG-SEC-07: Unjoined invitees can view member GPS coordinates
-              </div>
+              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-SEC-07: Unjoined invitees can view member GPS coordinates</div>
               <span class="defect-meta">GroupDetailScreen/index.js:141-146</span>
             </div>
-            <div class="defect-section"><strong>User Impact:</strong> Privacy & authorization leak: An unjoined invitee can see exact GPS locations of all group members before accepting.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>fetchGroupDetailDataRequest</code> returns all members' latitude/longitude without checking if the current viewer has <code>isJoined === true</code>.</div>
-            <div class="code-box">// Remedy: Strip lastLocation coordinates from the API response unless requesting user is a verified joined member.</div>
-          </div>
-
-          <!-- Defect 9 -->
-          <div class="defect-card" data-cat="perf">
-            <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-medium">Medium</span>
-                BUG-PERF-01: App.js useEffect lacks dependency array []
-              </div>
-              <span class="defect-meta">src/App.js:42-50</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Increased JS bridge traffic, battery drain, and redundant push listener registrations on iOS.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>useEffect(() => { ... })</code> runs on every re-render of <code>App</code>, continually adding and removing native notification listeners.</div>
-            <div class="code-box">// Remedy: Add empty dependency array [] to run effect only once on mount:\nuseEffect(() => { ... }, []);</div>
-          </div>
-
-          <!-- Defect 10 -->
-          <div class="defect-card" data-cat="perf">
-            <div class="defect-header">
-              <div class="defect-id-title">
-                <span class="badge badge-medium">Medium</span>
-                BUG-PERF-03: Heavy base64 images duplicated inside MMKV group records
-              </div>
-              <span class="defect-meta">src/react-query/states/apiServices.js:89</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Slow app startup, memory spikes, and laggy FlatList scrolling when groups contain multiple members.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Full base64 image strings (~100KB-1MB each) are copied into each group member object instead of storing local file path URIs.</div>
-            <div class="code-box">// Remedy: Save photos to RNFS.DocumentDirectoryPath and persist lightweight local file paths (e.g. file:///...).</div>
+            <div class="defect-section"><strong>User Impact:</strong> Privacy leak: An unjoined invitee can see exact GPS locations of all group members before accepting.</div>
+            <div class="defect-section"><strong>Technical Cause:</strong> <code>fetchGroupDetailDataRequest</code> returns all members' latitude/longitude regardless of viewer join status.</div>
+            <div class="code-box">// Remedy: Strip lastLocation coordinates from response unless viewer has isJoined === true.</div>
           </div>
         </div>
       </div>
@@ -766,4 +640,4 @@ Live SWAPI Check:       Endpoint online, but ignores ?search= queries and omits 
 `;
 
 fs.writeFileSync(outPath, htmlContent, 'utf8');
-console.log('Successfully generated beautiful report at ' + outPath);
+console.log('Successfully generated full-English dashboard at ' + outPath);
