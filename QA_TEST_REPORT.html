@@ -307,7 +307,7 @@
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
       <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary</button>
       <button class="btn btn-primary" onclick="switchTab('testcases')">📋 Full Test Cases Matrix</button>
-      <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer (34)</button>
+      <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer (44)</button>
     </div>
   </header>
 
@@ -315,7 +315,7 @@
     <div class="tab-bar">
       <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
       <button class="tab-btn" id="tab-btn-testcases" onclick="switchTab('testcases')">📋 Official Test Cases Matrix (Requirements 1–13)</button>
-      <button class="tab-btn active" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (All 34 Bugs)</button>
+      <button class="tab-btn active" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (All 44 Bugs)</button>
     </div>
 
     <!-- TAB 1: QUICK SUMMARY & TALKING POINTS -->
@@ -586,20 +586,24 @@
       </div>
     </div>
 
-    <!-- TAB 3: ALL 34 DEFECTS INTERACTIVE EXPLORER -->
+    <!-- TAB 3: ALL DEFECTS INTERACTIVE EXPLORER -->
     <div id="tab-defects" class="tab-content">
       <div class="card">
-        <div class="card-title">🐞 Interactive Defect Explorer (All 34 Verified Defects)</div>
-        <p style="margin-bottom: 16px; color: var(--text-muted);">Use the buttons or search bar below to filter through all 34 defects verified across code, linter, tests, and live API probe.</p>
+        <div class="card-title">🐞 Interactive Defect Explorer (All 44 Verified Defects)</div>
+        <p style="margin-bottom: 16px; color: var(--text-muted);">Use the category filter buttons or search box below to explore all 44 defects across code, linter, tests, and live API probe.</p>
         <div class="defect-controls">
           <input type="text" id="defectSearch" class="search-input" placeholder="🔍 Search defect title, file, or keyword (e.g. Platform, Login, MMKV, SWAPI)..." oninput="filterDefects()">
-          <button class="filter-btn active" onclick="setFilter('all', this)">All (34)</button>
+          <button class="filter-btn active" onclick="setFilter('all', this)">All (44)</button>
           <button class="filter-btn" onclick="setFilter('blocker', this)">Blocker / Critical (5)</button>
-          <button class="filter-btn" onclick="setFilter('functional', this)">Functional (21)</button>
+          <button class="filter-btn" onclick="setFilter('functional', this)">Functional (24)</button>
           <button class="filter-btn" onclick="setFilter('security', this)">Security (8)</button>
           <button class="filter-btn" onclick="setFilter('compat', this)">Compatibility (4)</button>
           <button class="filter-btn" onclick="setFilter('perf', this)">Performance (4)</button>
           <button class="filter-btn" onclick="setFilter('i18n', this)">I18n / L10n (4)</button>
+        </div>
+        <div id="filterStatus" style="margin: 12px 0 16px; font-size: 13px; font-weight: 600; color: #2563eb; background: #eff6ff; padding: 8px 14px; border-radius: 6px; border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between;">
+          <span>Showing all 44 verified defects</span>
+          <span style="font-size: 11px; font-weight: normal; color: #64748b;">Tip: Click any category button above to filter</span>
         </div>
 
         <div class="defect-list" id="defectList">
@@ -1233,6 +1237,8 @@ const filtered = allPeople.filter(p =&gt; p.name.toLowerCase().includes(searchQu
   </div>
 
   <script>
+    let currentCategory = 'all';
+
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -1244,30 +1250,39 @@ const filtered = allPeople.filter(p =&gt; p.name.toLowerCase().includes(searchQu
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function setFilter(category, button) {
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-
+    function updateVisibility() {
+      const q = (document.getElementById('defectSearch').value || '').toLowerCase().trim();
       const cards = document.querySelectorAll('.defect-card');
       let visibleCount = 0;
       cards.forEach(card => {
         const cats = card.getAttribute('data-cat') || '';
-        if (category === 'all' || cats.includes(category)) {
+        const matchesCat = currentCategory === 'all' || cats.includes(currentCategory);
+        const matchesQuery = !q || card.innerText.toLowerCase().includes(q);
+        if (matchesCat && matchesQuery) {
           card.style.display = 'block';
           visibleCount++;
         } else {
           card.style.display = 'none';
         }
       });
+
+      const statusEl = document.getElementById('filterStatus');
+      if (statusEl) {
+        const catLabel = currentCategory === 'all' ? 'All Categories' : currentCategory.toUpperCase();
+        statusEl.innerHTML = '<span>Showing <strong>' + visibleCount + '</strong> of 44 defects [Category: <strong>' + catLabel + '</strong>]' + (q ? ' • Search: <em>"' + q + '"</em>' : '') + '</span>' +
+          '<span style="font-size: 11px; font-weight: normal; color: #64748b;">Click [All (44)] to reset</span>';
+      }
+    }
+
+    function setFilter(category, button) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      currentCategory = category;
+      updateVisibility();
     }
 
     function filterDefects() {
-      const q = document.getElementById('defectSearch').value.toLowerCase();
-      const cards = document.querySelectorAll('.defect-card');
-      cards.forEach(card => {
-        const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(q) ? 'block' : 'none';
-      });
+      updateVisibility();
     }
   </script>
 </body>
