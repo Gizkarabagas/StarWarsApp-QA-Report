@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QA Assessment Report & Interview Dashboard — StarWarsApp</title>
+  <title>QA Assessment Dashboard & Test Cases — StarWarsApp</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -36,7 +36,7 @@
     .app-header {
       background: #0f172a;
       color: white;
-      padding: 22px 32px;
+      padding: 20px 32px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -49,22 +49,21 @@
     }
 
     .app-title h1 {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 10px;
-      letter-spacing: -0.02em;
     }
     .app-title p {
       font-size: 13px;
       color: #94a3b8;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .header-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -86,7 +85,7 @@
     .btn-outline:hover { background: rgba(255,255,255,0.2); }
 
     .main-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 28px auto;
       padding: 0 24px 80px;
     }
@@ -99,7 +98,7 @@
       border-radius: 10px;
       margin-bottom: 28px;
       position: sticky;
-      top: 84px;
+      top: 80px;
       z-index: 90;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
@@ -201,6 +200,7 @@
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      white-space: nowrap;
     }
     .badge-blocker { background: #7f1d1d; color: white; }
     .badge-critical { background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; }
@@ -211,10 +211,11 @@
     .badge-blocked { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 
     .table-responsive { overflow-x: auto; margin: 16px 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
-    th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.5; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
     tr:hover { background: #fafafa; }
+    td strong { color: #0f172a; }
 
     .qa-card {
       border: 1px solid var(--border);
@@ -273,7 +274,7 @@
       gap: 8px;
     }
     .defect-id-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text);
       display: flex;
@@ -319,21 +320,21 @@
     </div>
     <div class="header-actions">
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
-      <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary (English)</button>
-      <button class="btn btn-primary" onclick="switchTab('report')">📄 Formal QA Report</button>
+      <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary</button>
+      <button class="btn btn-primary" onclick="switchTab('testcases')">📋 Full Test Cases Matrix</button>
       <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer</button>
     </div>
   </header>
 
   <div class="main-container">
     <div class="tab-bar">
-      <button class="tab-btn active" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
-      <button class="tab-btn" id="tab-btn-report" onclick="switchTab('report')">📄 Official QA Test Report (Full Spec)</button>
+      <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
+      <button class="tab-btn active" id="tab-btn-testcases" onclick="switchTab('testcases')">📋 Official Test Cases Matrix (Requirements 1–13)</button>
       <button class="tab-btn" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (34 Bugs)</button>
     </div>
 
-    <!-- TAB 1: QUICK EXECUTIVE SUMMARY & TALKING POINTS (ENGLISH) -->
-    <div id="tab-summary" class="tab-content">
+    <!-- TAB 1: QUICK SUMMARY & INTERVIEW TALKING POINTS -->
+    <div id="tab-summary" class="tab-content" style="display: none;">
       <div class="kpi-grid">
         <div class="kpi-card kpi-danger">
           <span class="label">Release Verdict</span>
@@ -365,7 +366,6 @@
         </div>
       </div>
 
-      <!-- 60-Second Elevator Pitch -->
       <div class="card">
         <div class="card-title">🎤 Your 60-Second Opening Pitch for the Interview (Speak this!)</div>
         <div class="pitch-box">
@@ -375,7 +375,6 @@
         </div>
       </div>
 
-      <!-- The Big 5 Showstoppers -->
       <div class="card">
         <div class="card-title">🔥 The "Big 5" Showstoppers (The Top Defects to Present)</div>
         <div class="table-responsive">
@@ -424,39 +423,6 @@
         </div>
       </div>
 
-      <!-- Quick 13-Requirement Table -->
-      <div class="card">
-        <div class="card-title">📋 13-Requirement Fast Reference Matrix</div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 50px;">Req</th>
-                <th style="width: 260px;">Requirement Description</th>
-                <th style="width: 110px;">Status</th>
-                <th>Interview Fast Fact</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>#1</td><td>Register Luke & Vader accounts</td><td><span class="badge badge-pass">PASS (Form)</span></td><td>Password regex passes. Mixed-case emails fail login due to unnormalized storage.</td></tr>
-              <tr><td>#2</td><td>Upload photo via Camera or Gallery</td><td><span class="badge badge-fail">FAIL</span></td><td>Camera snapshot only. Zero gallery/library upload option implemented.</td></tr>
-              <tr><td>#3</td><td>Login with email & password</td><td><span class="badge badge-blocker">BLOCKER</span></td><td>Missing <code>Platform</code> import blocks all logins. "Forget Password" is a <code>console.log</code>.</td></tr>
-              <tr><td>#4</td><td>Profile displays SWAPI particulars</td><td><span class="badge badge-fail">FAIL</span></td><td>Height, mass, gender show up, but user full name is omitted on profile screen.</td></tr>
-              <tr><td>#5</td><td>Create group & invite (Rebel Alliance)</td><td><span class="badge badge-fail">FAIL</span></td><td>Error & placeholder text swapped; returning from starship picker wipes members.</td></tr>
-              <tr><td>#6</td><td>In-app group invitation notification</td><td><span class="badge badge-critical">CRASH</span></td><td>App crashes upon viewing notifications due to missing <code>Platform</code> import.</td></tr>
-              <tr><td>#7</td><td>Join invited group</td><td><span class="badge badge-pass">PASS</span></td><td>Joining works in English; tab matching breaks if initial language is Indonesian.</td></tr>
-              <tr><td>#8</td><td>Group profile shows members & GPS</td><td><span class="badge badge-fail">FAIL</span></td><td>MapView is commented out. GPS coordinates leak to unjoined invitees (privacy).</td></tr>
-              <tr><td>#9</td><td>Interactive Starship info via SWAPI</td><td><span class="badge badge-fail">FAIL</span></td><td>Only 9 static text lines. Pushes member list completely off-screen.</td></tr>
-              <tr><td>#10</td><td>Follow Adobe XD design</td><td><span class="badge badge-blocked">BLOCKED</span></td><td>Hyperlink in PDF requires account sign-in/access permission from interviewers.</td></tr>
-              <tr><td>#11</td><td>Auth & authorization scheme</td><td><span class="badge badge-fail">FAIL</span></td><td>Plaintext passwords in MMKV, cleartext HTTP <code>localhost:3000</code>.</td></tr>
-              <tr><td>#12</td><td>Portrait & Landscape (phone & tablet)</td><td><span class="badge badge-fail">FAIL</span></td><td>Dimensions are frozen at boot (<code>Object.freeze</code>); rotating breaks UI layout.</td></tr>
-              <tr><td>#13</td><td>Support for I18n and L10n (ID & EN)</td><td><span class="badge badge-fail">FAIL</span></td><td>Hardcoded <code>lng: 'en'</code> overrides device language; untranslated alerts remain.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Top Interview Questions & Answers -->
       <div class="card">
         <div class="card-title">💡 Anticipated Interview Q&A (Practice These Answers!)</div>
         <div class="qa-card">
@@ -467,38 +433,221 @@
           <div class="qa-q">Q: "How did you discover the StarWarsAPI search defect?"</div>
           <div class="qa-a"><strong>A:</strong> "I examined <code>apiCallers.js</code> and noticed the host was <code>swapi.info</code>. I wrote an automated integration script to execute a live HTTPS query for <code>https://swapi.info/api/people/?search=vader</code>. The response returned an unpaginated array of all 82 characters, proving that <code>swapi.info</code> ignores search query params. The solution is to fetch once into React Query and filter client-side in JavaScript."</div>
         </div>
-        <div class="qa-card">
-          <div class="qa-q">Q: "What are the biggest security vulnerabilities in this app?"</div>
-          <div class="qa-a"><strong>A:</strong> "Two major items: First, <strong>Insecure Data Storage (OWASP M2):</strong> MMKV is initialized without an encryption key, storing plaintext passwords. Second, <strong>Broken Authorization / Privacy Leak (OWASP M1):</strong> In <code>GroupDetailScreen</code>, members' exact GPS coordinates are sent and displayed to users who haven't accepted the group invite yet."</div>
-        </div>
       </div>
     </div>
 
-    <!-- TAB 2: FORMAL OFFICIAL REPORT -->
-    <div id="tab-report" class="tab-content" style="display: none;">
+    <!-- TAB 2: FULL TEST CASES MATRIX (OFFICIAL ASSIGNMENT REQUIREMENT) -->
+    <div id="tab-testcases" class="tab-content">
       <div class="card">
-        <div class="card-title">📄 Complete Formal QA Test Report</div>
-        <p style="margin-bottom: 20px; color: var(--text-muted);">The full formal report matching the assignment submission specifications is also maintained in markdown at <a href="./QA_TEST_REPORT.md" target="_blank"><code>QA_TEST_REPORT.md</code></a>.</p>
+        <div class="card-title">📋 Official Test Cases Matrix (Requirements 1–13 Across All 5 Pillars)</div>
+        <p style="margin-bottom: 16px; color: var(--text-muted);">This is the complete structured test suite answering Section 2 of the assignment: <em>"Your test report should include: 1. Test strategy, 2. Test cases, 3. Test results, 4. Recommendations."</em></p>
         
-        <h3 style="margin: 20px 0 10px; color: var(--primary);">1. Test Strategy & Risk-Based Rationale</h3>
-        <p>Testing was prioritized around critical authentication exceptions, data privacy, and cross-platform native stability. Due to the 1-week timeline, verification combined automated AST checks, dependency verification, live API contract tests, and line-by-line manual code traces.</p>
-
-        <h3 style="margin: 24px 0 10px; color: var(--primary);">2. Automated Baseline Results</h3>
-        <div class="code-box">
-Target Repo Unit Test:  FAIL (yarn test -> __tests__/App.test.tsx imports non-existent ../App)
-Target Repo Linter:     FAIL (yarn lint -> 244 problems: 20 fatal errors, 224 warnings)
-Automated QA Suite:     41 checks executed -> 7 Passed, 34 Defect Assertions Confirmed
-Live SWAPI Check:       Endpoint online, but ignores ?search= queries and omits pagination keys
+        <h3 style="margin: 20px 0 10px; color: var(--primary);">2.1 Functional Test Cases (Requirements 1–11 & 13)</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 90px;">TC ID</th>
+                <th style="width: 50px;">Req</th>
+                <th style="width: 220px;">Scenario & Preconditions</th>
+                <th style="width: 200px;">Test Steps & Data</th>
+                <th>Expected Result</th>
+                <th>Actual Result</th>
+                <th style="width: 80px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>TC-FUNC-01</strong></td><td>#1</td>
+                <td>Register User 1 (Luke) with valid credentials</td>
+                <td>Name: Luke Skywalker<br>Email: <code>luke_skywalker@starwars.com</code><br>Pass: <code>m4y_th3_F0rc3_b3_w1th_u</code></td>
+                <td>Account created, password validated, user saved in MMKV.</td>
+                <td>Password regex passes. However, email is saved without <code>.toLowerCase()</code>, which breaks login if capitalized.</td>
+                <td><span class="badge badge-fail">PARTIAL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-02</strong></td><td>#1</td>
+                <td>Register User 2 (Darth Vader) with valid credentials</td>
+                <td>Name: Darth Vader<br>Email: <code>anakin_skywalker@starwars.com</code><br>Pass: <code>1_4m_ur_F4th3r!</code></td>
+                <td>Password accepted with symbols (<code>_</code> and <code>!</code>) and digits.</td>
+                <td>Regex validator correctly passes both Luke and Vader test passwords (verified via automated suite).</td>
+                <td><span class="badge badge-pass">PASS</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-03</strong></td><td>#1</td>
+                <td>Negative validation: weak password & duplicate email</td>
+                <td>Enter password <code>weakpass</code>, then duplicate email <code>luke_skywalker@starwars.com</code></td>
+                <td>Appropriate error toast shown; registration blocked.</td>
+                <td>Error toasts correctly displayed (<em>"Passwords do not match"</em>, <em>"Email is already registered"</em>).</td>
+                <td><span class="badge badge-pass">PASS</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-04</strong></td><td>#2</td>
+                <td>Profile photo upload via <strong>Camera</strong></td>
+                <td>Tap avatar -> grant camera permission -> tap Capture Photo</td>
+                <td>Camera captures photo, returns to form, allows retaking if desired.</td>
+                <td>Uses low-res <code>takeSnapshot</code> (quality 10); lacks a back button on camera; cannot retake once photo is set.</td>
+                <td><span class="badge badge-fail">PARTIAL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-05</strong></td><td>#2</td>
+                <td>Profile photo upload via <strong>Image Library / Gallery</strong></td>
+                <td>Tap avatar -> choose "Choose from Gallery"</td>
+                <td>User can select an existing photo from phone gallery.</td>
+                <td><strong>Completely missing</strong>. No gallery picker library installed or UI implemented (violating Req #2).</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-06</strong></td><td>#3</td>
+                <td>User Login with registered email & password</td>
+                <td>Enter <code>luke_skywalker@starwars.com</code> and password -> tap LOGIN</td>
+                <td>Location checked, user authenticated, redirected to Home tab.</td>
+                <td><strong>Fatal Blocker</strong>: <code>Platform.OS</code> is called without importing <code>Platform</code>. 100% of logins fail with location error.</td>
+                <td><span class="badge badge-blocker">BLOCKER</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-07</strong></td><td>#3</td>
+                <td>"Forget Password" action</td>
+                <td>Tap "Forget Password" on login screen</td>
+                <td>Navigates to password reset flow or dialog.</td>
+                <td>Executes <code>console.log('Forgot Password Pressed')</code> only; zero user-facing response.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-08</strong></td><td>#4</td>
+                <td>Select SWAPI character role & view Profile particulars</td>
+                <td>Pick "Darth Vader" on SWAPI picker -> view Profile tab</td>
+                <td>Displays height, mass, birth year, gender, and full name.</td>
+                <td>Height/mass/gender display, but user's full name is omitted on the Profile screen. Undefined style <code>$lightGray</code> used.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-09</strong></td><td>#5</td>
+                <td>Create group "Rebel Alliance" & invite Darth Vader</td>
+                <td>Enter "Rebel Alliance" -> pick Starship -> invite <code>anakin_skywalker@starwars.com</code></td>
+                <td>Group saved, Luke joined as main member, Vader added as invited member.</td>
+                <td>Validation & placeholder i18n keys are swapped; returning from starship picker without selecting wipes members.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-10</strong></td><td>#6</td>
+                <td>In-app notification for invited user (Darth Vader)</td>
+                <td>Log in as Darth Vader -> open Home tab</td>
+                <td>Home switches to Unjoined tab; push/local notification is displayed.</td>
+                <td><strong>Fatal Crash</strong>: <code>sendPushNotification()</code> calls <code>Platform.OS</code> without importing <code>Platform</code>, crashing app immediately.</td>
+                <td><span class="badge badge-critical">CRASH</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-11</strong></td><td>#7</td>
+                <td>Join invited group from "Unjoined Group" tab</td>
+                <td>Open Unjoined tab -> tap "Rebel Alliance" -> tap "Join Group"</td>
+                <td>Member <code>isJoined</code> flips to <code>true</code>; group moves to "Joined Group" tab.</td>
+                <td>Works in English. However, tab matching fails if initial language is Indonesian because <code>activeTab</code> is hardcoded to <code>'Joined Group'</code>.</td>
+                <td><span class="badge badge-fail">PARTIAL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-12</strong></td><td>#8</td>
+                <td>View joined members and last known GPS location</td>
+                <td>Open Group Detail -> inspect member list and map</td>
+                <td>Interactive map displays markers for each joined member's last known GPS coordinate.</td>
+                <td><code>MapView</code> and <code>Marker</code> are commented out. Member GPS coordinates leak to unjoined invitees before joining.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-13</strong></td><td>#9</td>
+                <td>View interactive Starship information on Group profile</td>
+                <td>Open Group Detail -> inspect starship section</td>
+                <td>Interactive, rich Starship specifications from SWAPI.</td>
+                <td>Non-interactive static text subset of 9 fields; pushes member list off-screen on smaller devices.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-FUNC-14</strong></td><td>#13</td>
+                <td>Support for I18n & L10n (English and Indonesian)</td>
+                <td>Toggle language EN/ID; inspect formatting</td>
+                <td>Full bilingual translation across all screens, buttons, and alerts; locale-aware number formatting.</td>
+                <td><code>i18n.js</code> hardcodes <code>lng: 'en'</code>, overriding device locale; missing key <code>register.locationPermissionRequired</code>; alerts in English.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <h3 style="margin: 24px 0 10px; color: var(--primary);">3. Proposed 5-Day Completion Plan for Device Tasks</h3>
-        <ul style="padding-left: 20px; font-size: 14px; line-height: 1.8;">
-          <li><strong>Day 1:</strong> Clarify Adobe XD login access & backend API endpoint with hiring team.</li>
-          <li><strong>Day 2:</strong> Execute Android AVD matrix (API 29, API 34, 10" Tablet) with Android Studio Profiler.</li>
-          <li><strong>Day 3:</strong> Build on macOS/Xcode simulator (iPhone 15 Pro, iPad Air) verifying iOS push & safe areas.</li>
-          <li><strong>Day 4:</strong> Pixel-for-pixel Adobe XD comparison and WCAG AA contrast audit.</li>
-          <li><strong>Day 5:</strong> Rehearse live demonstration and present findings to interview panel.</li>
-        </ul>
+        <h3 style="margin: 28px 0 10px; color: var(--primary);">2.2 Compatibility Test Cases (Portrait/Landscape & Devices)</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 100px;">TC ID</th>
+                <th style="width: 240px;">Scenario</th>
+                <th>Expected Result</th>
+                <th>Actual Result</th>
+                <th style="width: 80px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>TC-COMP-01</strong></td>
+                <td>Rotate device from Portrait to Landscape on Login & Profile</td>
+                <td>Form adjusts dynamically and remains scrollable.</td>
+                <td>Login and Profile omit <code>ScrollView</code>; content clips on landscape viewports.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-COMP-02</strong></td>
+                <td>Rotate device to Landscape on Register (Camera) & Home (Chart)</td>
+                <td>Camera box and PieChart dynamically scale to width and height.</td>
+                <td><code>GlobalConfig.js</code> freezes <code>Dimensions.get('window')</code> on startup; layout fails to adapt when rotated.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-COMP-03</strong></td>
+                <td>Tablet & iPad Compatibility (iPad 10.9", Android Tablet)</td>
+                <td>Full tablet orientation support and proportional layouts.</td>
+                <td><code>Info.plist</code> omits <code>UISupportedInterfaceOrientations~ipad</code>; modals use fixed <code>width: 300</code>.</td>
+                <td><span class="badge badge-fail">FAIL</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin: 28px 0 10px; color: var(--primary);">2.3 Security & Privacy Test Cases</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 100px;">TC ID</th>
+                <th style="width: 240px;">Scenario</th>
+                <th>Expected Result</th>
+                <th>Actual Result</th>
+                <th style="width: 80px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>TC-SEC-01</strong></td>
+                <td>Data-at-Rest: Credential confidentiality in local storage</td>
+                <td>Passwords hashed with salt; database encrypted via Keystore.</td>
+                <td>Unencrypted MMKV database stores plaintext passwords in <code>LIST_USER</code> and <code>CURR_USER_LOGIN_DATA</code>.</td>
+                <td><span class="badge badge-critical">CRITICAL</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-SEC-02</strong></td>
+                <td>Secrets Management: Google Maps API keys</td>
+                <td>API keys injected via environment variables (.env).</td>
+                <td>Hardcoded API key <code>AIzaSyDw...</code> committed in <code>AndroidManifest.xml</code> and <code>AppDelegate.mm</code>.</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td><strong>TC-SEC-03</strong></td>
+                <td>Authorization: Member GPS location exposure</td>
+                <td>GPS coordinates hidden until user is confirmed joined member.</td>
+                <td><code>fetchGroupDetailDataRequest</code> returns GPS coordinates of all members to unjoined invitees.</td>
+                <td><span class="badge badge-critical">CRITICAL</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
