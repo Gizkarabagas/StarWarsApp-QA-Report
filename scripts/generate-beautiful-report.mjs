@@ -6,7 +6,520 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const outPath = path.resolve(__dirname, '..', 'QA_TEST_REPORT.html');
 
-const htmlContent = `<!DOCTYPE html>
+const defects = [
+  // 1. BLOCKERS & CRITICAL
+  {
+    id: 'BUG-FUNC-09',
+    badge: 'badge-blocker',
+    badgeText: 'Blocker',
+    cat: 'blocker functional',
+    title: 'Missing Platform import completely blocks Login',
+    file: 'src/screens/LoginScreen/index.js:51',
+    impact: '100% of user login attempts fail with error: "You must allow location permission on this app to login".',
+    cause: "Platform.OS === 'android' is called without importing Platform from 'react-native', throwing an unhandled ReferenceError.",
+    remedy: "// Add Platform to named imports in LoginScreen/index.js\nimport { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, ... } from 'react-native';"
+  },
+  {
+    id: 'BUG-FUNC-21',
+    badge: 'badge-critical',
+    badgeText: 'Critical',
+    cat: 'blocker functional',
+    title: 'Missing Platform import crashes app on Group Invitation',
+    file: 'src/screens/GroupHomeScreen/index.js:102',
+    impact: 'When an invited user (e.g. Darth Vader) logs in and opens the Home tab, the app immediately crashes.',
+    cause: "sendPushNotification() evaluates Platform.OS === 'ios' without importing Platform, throwing an uncaught ReferenceError.",
+    remedy: "// Add Platform import in GroupHomeScreen/index.js\nimport { View, Text, FlatList, Image, TouchableOpacity, Platform } from 'react-native';"
+  },
+  {
+    id: 'BUG-SEC-01',
+    badge: 'badge-critical',
+    badgeText: 'Critical',
+    cat: 'blocker security',
+    title: 'Plaintext password storage and comparison in MMKV',
+    file: 'src/utils/Storages.js:3 & apiServices.js:25',
+    impact: 'Total credential exposure: All registered user passwords and session data are stored unencrypted in local storage.',
+    cause: 'new MMKV() is instantiated without an encryptionKey, and loginRequest verifies passwords using raw === equality.',
+    remedy: '// Initialize MMKV with Keystore-backed encryptionKey and hash passwords with bcrypt/Argon2:\nexport const storage = new MMKV({ id: "starwars-storage", encryptionKey: secureKeyFromKeystore });'
+  },
+  {
+    id: 'BUG-SEC-07',
+    badge: 'badge-critical',
+    badgeText: 'Critical',
+    cat: 'blocker security',
+    title: 'Unjoined invitees can view member GPS coordinates (Privacy Leak)',
+    file: 'src/screens/GroupDetailScreen/index.js:141',
+    impact: 'Any invited user who has not accepted an invitation can see exact GPS locations of all group members.',
+    cause: 'fetchGroupDetailDataRequest returns all members latitude and longitude without verifying if the viewer has isJoined === true.',
+    remedy: '// Strip member coordinates from API response unless current user has confirmed isJoined status:\nif (!currentUser.isJoined) { member.lastLocation = null; }'
+  },
+  {
+    id: 'BUG-BUILD-01',
+    badge: 'badge-critical',
+    badgeText: 'Critical',
+    cat: 'blocker functional',
+    title: 'Existing repository unit test (__tests__/App.test.tsx) fails on run',
+    file: '__tests__/App.test.tsx:7',
+    impact: 'CI/CD pipeline test gate fails immediately (yarn test exits with code 1).',
+    cause: 'App.test.tsx imports non-existent ../App instead of the actual entrypoint ../src/App.',
+    remedy: "// Fix import path in __tests__/App.test.tsx:\nimport App from '../src/App';"
+  },
+
+  // 2. FUNCTIONAL DEFECTS
+  {
+    id: 'BUG-FUNC-01',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'functional',
+    title: 'Registration stores mixed-case emails, breaking lowercase login check',
+    file: 'src/react-query/states/apiServices.js:40',
+    impact: 'Users registering with capitalized letters (e.g. Luke@starwars.com) cannot log in subsequently.',
+    cause: 'registerRequest saves raw params?.email without .trim().toLowerCase(), while loginRequest checks strict lowercase equality.',
+    remedy: '// Normalize email before saving:\nemail: params?.email?.trim().toLowerCase()'
+  },
+  {
+    id: 'BUG-FUNC-05',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Login & Register email inputs lack autoCapitalize="none"',
+    file: 'src/screens/LoginScreen/index.js:152 & RegisterScreen:284',
+    impact: 'Mobile keyboards automatically capitalize the first letter of user emails, triggering BUG-FUNC-01.',
+    cause: 'TextInput components omit autoCapitalize="none" and keyboardType="email-address".',
+    remedy: '<TextInput autoCapitalize="none" keyboardType="email-address" ... />'
+  },
+  {
+    id: 'BUG-FUNC-06',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'functional',
+    title: 'Missing image library / photo gallery upload option (Req #2)',
+    file: 'src/screens/RegisterScreen/index.js:195',
+    impact: 'Users cannot select an existing photo from their gallery, directly violating Requirement #2.',
+    cause: 'Only react-native-vision-camera is implemented; no gallery picker library is installed or exposed in UI.',
+    remedy: '// Install react-native-image-picker and provide action sheet (Camera or Gallery):\nimport { launchImageLibrary } from "react-native-image-picker";'
+  },
+  {
+    id: 'BUG-FUNC-07',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Captured profile photo cannot be retaken; camera lacks Cancel button',
+    file: 'src/screens/RegisterScreen/index.js:268',
+    impact: 'Users who take a blurry photo are trapped with it unless they discard the entire registration form.',
+    cause: 'The preview avatar is rendered as an unclickable Image rather than wrapped in a TouchableOpacity.',
+    remedy: '<TouchableOpacity onPress={() => setCurrRegisterPage(2)}><Image source={{ uri: photo }} /></TouchableOpacity>'
+  },
+  {
+    id: 'BUG-FUNC-08',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Camera uses low-res preview snapshot (quality: 10) & file:// path risk',
+    file: 'src/screens/RegisterScreen/index.js:198',
+    impact: 'Profile photos are pixelated and RNFS.readFile can fail on Android with file:// prefix.',
+    cause: 'takeSnapshot is used instead of takePhoto, and hardcoded file:// string is passed to RNFS.',
+    remedy: 'Use cameraRef.current.takePhoto({ qualityPrioritization: "balanced" }) and pass raw path to RNFS.'
+  },
+  {
+    id: 'BUG-FUNC-10',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Undefined colorScheme.$primaryBlueColor token referenced in Login',
+    file: 'src/screens/LoginScreen/index.js:169',
+    impact: 'ActivityIndicator color falls back to undefined/default system color.',
+    cause: 'colorScheme.js defines $blueColor, but LoginScreen references non-existent $primaryBlueColor.',
+    remedy: 'color={colorScheme.$blueColor}'
+  },
+  {
+    id: 'BUG-FUNC-11',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'LoginScreen uses navigation.navigate instead of navigation.replace',
+    file: 'src/screens/LoginScreen/index.js:38',
+    impact: 'Pressing Android hardware back button after login returns the user to the Login screen.',
+    cause: 'Navigation pushes BOTTOM_TAB_BAR onto the stack instead of resetting or replacing the auth stack.',
+    remedy: 'navigation.replace(BOTTOM_TAB_BAR)'
+  },
+  {
+    id: 'BUG-FUNC-12',
+    badge: 'badge-low',
+    badgeText: 'Low',
+    cat: 'functional',
+    title: '"Forget Password" link is a non-functional console.log stub',
+    file: 'src/screens/LoginScreen/index.js:176',
+    impact: 'Users tapping Forget Password receive zero UI response or recovery instructions.',
+    cause: "onPress handler only executes console.log('Forgot Password Pressed').",
+    remedy: 'Implement password recovery dialog or navigate to ForgotPasswordScreen.'
+  },
+  {
+    id: 'BUG-FUNC-13',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'functional',
+    title: 'SwapiScreen search query ?search= is ignored by swapi.info server',
+    file: 'src/screens/SwapiScreen/index.js:26',
+    impact: 'Searching for "vader" or "falcon" does not filter results; all 82 items are returned.',
+    cause: 'Live HTTPS test proves https://swapi.info/api/people/?search=vader ignores query strings and returns static array.',
+    remedy: '// Fetch dataset once with React Query and execute client-side array filtering:\nconst filtered = allPeople.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));'
+  },
+  {
+    id: 'BUG-FUNC-14',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'ProfileScreen omits user full name and uses undefined color token',
+    file: 'src/screens/ProfileScreen/index.js:33 & styles.js:22',
+    impact: 'Profile screen fails to display the user name and borderBottomColor resolves to undefined.',
+    cause: 'userDetail array omits currUserData.name, and styles.js references undefined $lightGray.',
+    remedy: 'Add Name to userDetail array and replace $lightGray with $gray in styles.js.'
+  },
+  {
+    id: 'BUG-FUNC-15',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'functional',
+    title: 'fetchCurrentUserRequest references undeclared variable "email"',
+    file: 'src/react-query/states/apiServices.js:298',
+    impact: 'Function crashes with ReferenceError: email is not defined, always falling into catch fallback.',
+    cause: 'api.post("/getCurrentUser", { email: email }) is called where email variable is out of scope.',
+    remedy: 'api.post("/getCurrentUser", { email: currentUserData.email })'
+  },
+  {
+    id: 'BUG-FUNC-16',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'CreateGroupScreen swaps validation error toast and placeholder keys',
+    file: 'src/screens/CreateGroupScreen/index.js:95, 151',
+    impact: 'Validation toast displays prompt "Select group starship", while field placeholder displays error "You must select a starship."',
+    cause: 'i18n translation keys createGroup.selectStarship and createGroup.selectStarshipPlaceholder are inverted.',
+    remedy: 'Swap the translation keys in CreateGroupScreen/index.js lines 95 and 151.'
+  },
+  {
+    id: 'BUG-FUNC-17',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Returning from Starship picker without selection wipes invited members',
+    file: 'src/screens/CreateGroupScreen/index.js:44-47',
+    impact: 'Users who navigate to SWAPI picker and press Back lose all members they previously invited.',
+    cause: 'useEffect resets members to [currUserData] whenever isFocused && !route.params?.selectedSwapi is true.',
+    remedy: 'Only initialize members once on mount, rather than resetting on screen focus.'
+  },
+  {
+    id: 'BUG-FUNC-18',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'CreateGroupScreen handleRemoveMember filters by non-unique name',
+    file: 'src/screens/CreateGroupScreen/index.js:101',
+    impact: 'Deleting one member removes all other members who share the same display name.',
+    cause: 'Filter compares member.name !== name instead of unique member.email.',
+    remedy: 'setMembers(members.filter(member => member.email !== email));'
+  },
+  {
+    id: 'BUG-FUNC-19',
+    badge: 'badge-low',
+    badgeText: 'Low',
+    cat: 'functional',
+    title: 'Invite member modal accidentally closes when tapping empty card space',
+    file: 'src/screens/CreateGroupScreen/index.js:201',
+    impact: 'Users tapping near the input box accidentally dismiss the invite popup and lose typed text.',
+    cause: 'TouchableWithoutFeedback wraps the entire modal card container.',
+    remedy: 'Wrap only the outer backdrop in TouchableWithoutFeedback, and provide an explicit Cancel button.'
+  },
+  {
+    id: 'BUG-FUNC-20',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'fetchSaveGroupRequest uses case-sensitive match and omits creator group',
+    file: 'src/react-query/states/apiServices.js:98',
+    impact: 'Creator does not have group added to user.groups, and mixed-case invited emails fail matching.',
+    cause: 'Matching checks member.email === user.email, and update logic excludes isMainMember.',
+    remedy: 'Normalize emails with .toLowerCase() and update groups array for all members including creator.'
+  },
+  {
+    id: 'BUG-FUNC-22',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'iOS local notifications reuse static id: "notification_id"',
+    file: 'src/screens/GroupHomeScreen/index.js:104',
+    impact: 'Multiple group invitations overwrite each other on iOS notification center.',
+    cause: 'addNotificationRequest specifies hardcoded static id: "notification_id".',
+    remedy: 'id: `invitation_${notification.groupId}_${Date.now()}`'
+  },
+  {
+    id: 'BUG-FUNC-23',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'GroupDetailScreen join button tab-check breaks if language is Indonesian',
+    file: 'src/screens/GroupDetailScreen/index.js:133',
+    impact: 'Join Group button fails to render if initial activeTab was hardcoded English "Joined Group".',
+    cause: 'Condition compares activeTab === t("groupDetail.unjoinedTab") against translated strings instead of static IDs.',
+    remedy: 'Compare against static tab IDs: activeTabId === "unjoined"'
+  },
+  {
+    id: 'BUG-FUNC-24',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'functional',
+    title: 'Interactive MapView is commented out in Group Profile (Req #8)',
+    file: 'src/screens/GroupDetailScreen/index.js:6, 111-131',
+    impact: 'Users only see raw coordinate numbers instead of an interactive map display.',
+    cause: 'MapView and Marker are commented out due to missing Google Maps billing account key.',
+    remedy: 'Re-enable MapView using Apple Maps on iOS or OpenStreetMap tiles on Android.'
+  },
+  {
+    id: 'BUG-FUNC-25',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'GroupDetailScreen accesses item.lastLocation.latitude without null guard',
+    file: 'src/screens/GroupDetailScreen/index.js:78',
+    impact: 'App crashes with TypeError: Cannot read property latitude of undefined if member is missing from storage.',
+    cause: 'Direct property access item.lastLocation.latitude without optional chaining.',
+    remedy: 'item.lastLocation?.latitude ? ... : ...'
+  },
+  {
+    id: 'BUG-FUNC-26',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'functional',
+    title: 'Starship details section is static text and pushes member list off-screen',
+    file: 'src/screens/GroupDetailScreen/index.js:103',
+    impact: 'Non-interactive specifications; on smaller screens the static header hides the member FlatList.',
+    cause: 'Static View placed above FlatList without outer ScrollView, and data is only 9 cached text fields.',
+    remedy: 'Place starship details in FlatList ListHeaderComponent or wrap in ScrollView.'
+  },
+
+  // 3. I18N & L10N DEFECTS
+  {
+    id: 'BUG-I18N-01',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'i18n',
+    title: 'Missing translation key "register.locationPermissionRequired"',
+    file: 'src/screens/RegisterScreen/index.js:119, 126',
+    impact: 'Raw key string "register.locationPermissionRequired" is displayed to users on location error.',
+    cause: 'Key is referenced via t(...) in RegisterScreen but does not exist in en.json or id.json.',
+    remedy: 'Add "locationPermissionRequired": "Location permission is required to continue" to en.json & id.json.'
+  },
+  {
+    id: 'BUG-I18N-02',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'i18n',
+    title: 'i18n.js hardcodes lng: "en", disabling device language detector',
+    file: 'src/utils/i18n.js:33',
+    impact: 'App always defaults to English on fresh install, ignoring user phone language setting.',
+    cause: 'lng: "en" is explicitly set in i18n.init(), overriding custom languageDetector.',
+    remedy: 'Remove lng: "en" from i18n.init() to allow languageDetector to select locale.'
+  },
+  {
+    id: 'BUG-I18N-03',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'i18n',
+    title: 'GroupHomeScreen initializes activeTab to English literal "Joined Group"',
+    file: 'src/screens/GroupHomeScreen/index.js:24',
+    impact: 'If app starts in Indonesian, activeTab ("Joined Group") does not match t("groupHome.joinedTab").',
+    cause: "useState('Joined Group') hardcodes English string literal as initial state.",
+    remedy: 'Use stable state enum: useState("JOINED_TAB")'
+  },
+  {
+    id: 'BUG-I18N-04',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'i18n',
+    title: 'Hardcoded English strings bypass i18next across app',
+    file: 'src/utils/GlobalFunction.js:30 & LoginScreen:55',
+    impact: 'Logout dialog and Android location permission dialog always show in English.',
+    cause: 'Alert.alert strings and permission dialog titles are hardcoded in English instead of using t(...).',
+    remedy: 'Wrap dialog strings with i18n.t() calls.'
+  },
+
+  // 4. COMPATIBILITY DEFECTS
+  {
+    id: 'BUG-COMP-01',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'compat',
+    title: 'Frozen Dimensions.get("window") breaks Landscape and Tablet rotation',
+    file: 'src/utils/GlobalConfig.js:15-20',
+    impact: 'Rotating phone to landscape causes camera box, charts, and TabBar to clip or freeze in portrait proportions.',
+    cause: 'Object.freeze(Metrics) caches Dimensions at module load time; orientation events never update metrics.',
+    remedy: 'Replace frozen Metrics.SCREEN_WIDTH with React Native useWindowDimensions() hook.'
+  },
+  {
+    id: 'BUG-COMP-02',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'compat',
+    title: 'Info.plist omits UISupportedInterfaceOrientations~ipad',
+    file: 'ios/StarWarsApp/Info.plist',
+    impact: 'App fails iPad multitasking orientation requirements during App Store review.',
+    cause: 'Info.plist only configures iPhone orientations, leaving iPad orientation keys missing.',
+    remedy: 'Add UISupportedInterfaceOrientations~ipad with Portrait, LandscapeLeft, and LandscapeRight.'
+  },
+  {
+    id: 'BUG-COMP-03',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'compat',
+    title: 'LoginScreen and ProfileScreen omit ScrollView, causing landscape clipping',
+    file: 'src/screens/LoginScreen/index.js & ProfileScreen',
+    impact: 'On smaller phones or landscape mode, the login button is pushed off-screen and cannot be scrolled.',
+    cause: 'Root containers use non-scrollable SafeAreaView with justifyContent: center.',
+    remedy: 'Wrap root containers in KeyboardAwareScrollView or ScrollView.'
+  },
+  {
+    id: 'BUG-COMP-04',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'compat',
+    title: 'MainActivity.kt notification intent handler self-launches redundant activity',
+    file: 'android/app/src/main/java/com/starwarsapp/MainActivity.kt:40',
+    impact: 'Tapping a notification can create redundant activity loops without passing extras to JS.',
+    cause: 'handleNotificationIntent calls startActivity(launchIntent) on itself inside onCreate.',
+    remedy: 'Forward intent extras through React Native initialProps or DeviceEventManagerModule.'
+  },
+
+  // 5. PERFORMANCE DEFECTS
+  {
+    id: 'BUG-PERF-01',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'perf',
+    title: 'App.js useEffect lacks dependency array [], causing listener churn',
+    file: 'src/App.js:42-50',
+    impact: 'iOS push notification event listener is attached and removed on every single render.',
+    cause: 'useEffect(() => { ... }) has no dependency array [].',
+    remedy: 'Add empty dependency array: useEffect(() => { ... }, []);'
+  },
+  {
+    id: 'BUG-PERF-02',
+    badge: 'badge-low',
+    badgeText: 'Low',
+    cat: 'perf',
+    title: 'SwapiScreen executes console.log with full dataset on every render',
+    file: 'src/screens/SwapiScreen/index.js:56',
+    impact: 'Floods React Native bridge and degrades JS thread performance during scrolling.',
+    cause: 'console.log("listSwapiData", listSwapiData) runs in the component render body.',
+    remedy: 'Remove the console.log statement before production build.'
+  },
+  {
+    id: 'BUG-PERF-03',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'perf',
+    title: 'Heavy base64 images duplicated inside MMKV group records',
+    file: 'src/react-query/states/apiServices.js:89',
+    impact: 'App startup slows down, memory usage spikes, and FlatList scrolling stutters.',
+    cause: 'Full base64 strings (~500KB each) are stored in LIST_USER and cloned into each GROUPS.members object.',
+    remedy: 'Save images to local filesystem (RNFS.DocumentDirectoryPath) and store lightweight file:// URIs.'
+  },
+  {
+    id: 'BUG-PERF-04',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'perf',
+    title: 'SwapiScreen search fires un-debounced HTTP request per keystroke',
+    file: 'src/screens/SwapiScreen/index.js:25',
+    impact: 'Typing "Vader" fires 5 immediate full network requests, downloading ~82 records each time.',
+    cause: 'useEffect triggers fetch on every searchQuery character change without debouncing.',
+    remedy: 'Debounce search input by 300ms using lodash/debounce or setTimeout.'
+  },
+
+  // 6. SECURITY & AUTHORIZATION
+  {
+    id: 'BUG-SEC-02',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'security',
+    title: 'Hardcoded Google Maps API keys committed to public git repository',
+    file: 'android/app/src/main/AndroidManifest.xml:55',
+    impact: 'Public exposure of API key allows unauthorized billing quota exhaustion and project abuse.',
+    cause: 'API key AIzaSyDwBmG2L0YadPd3JE-Wku5Bdd-vwk97mdA is hardcoded in AndroidManifest and AppDelegate.mm.',
+    remedy: 'Rotate API key, restrict by Android SHA-1 fingerprint & iOS bundle ID, and inject via .env.'
+  },
+  {
+    id: 'BUG-SEC-03',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'security',
+    title: 'Cleartext HTTP API_HOST & iOS NSAllowsArbitraryLoads: true enabled',
+    file: 'src/react-query/utils/apiCallers.js:3 & Info.plist:29',
+    impact: 'Network traffic is vulnerable to Man-In-The-Middle (MITM) interception and eavesdropping.',
+    cause: 'API_HOST is hardcoded to http://localhost:3000 and Info.plist disables ATS security.',
+    remedy: 'Enforce HTTPS everywhere and set NSAllowsArbitraryLoads to false in production.'
+  },
+  {
+    id: 'BUG-SEC-04',
+    badge: 'badge-high',
+    badgeText: 'High',
+    cat: 'security',
+    title: 'Android release build signed with debug.keystore & ProGuard disabled',
+    file: 'android/app/build.gradle:100-106',
+    impact: 'Release APK is unsigned by production keys and un-obfuscated (easily decompiled).',
+    cause: 'buildTypes.release uses signingConfig signingConfigs.debug and enableProguardInReleaseBuilds = false.',
+    remedy: 'Configure production release keystore in CI and set enableProguardInReleaseBuilds = true.'
+  },
+  {
+    id: 'BUG-SEC-05',
+    badge: 'badge-medium',
+    badgeText: 'Medium',
+    cat: 'security',
+    title: 'Tautological status check silently bypasses server rejections',
+    file: 'src/react-query/states/apiServices.js:67',
+    impact: 'App treats failed or rejected backend requests as successful registrations and logins.',
+    cause: 'Condition if (response.statusCode === 200 || dummyResponse.statusCode === 200) is always true.',
+    remedy: 'Verify real server response: if (response.statusCode === 200) { ... } else { throw error; }'
+  },
+  {
+    id: 'BUG-SEC-06',
+    badge: 'badge-low',
+    badgeText: 'Low',
+    cat: 'security',
+    title: 'SWAPI query parameters interpolated without encodeURIComponent()',
+    file: 'src/react-query/states/apiServices.js:147',
+    impact: 'Special characters or spaces in search strings can corrupt URL query strings.',
+    cause: 'URL constructed via `/people/?search=${search}` without sanitizing search parameter.',
+    remedy: '`/people/?search=${encodeURIComponent(search)}`'
+  },
+  {
+    id: 'BUG-SEC-08',
+    badge: 'badge-low',
+    badgeText: 'Low',
+    cat: 'security',
+    title: 'AndroidManifest.xml declares unused ACCESS_BACKGROUND_LOCATION',
+    file: 'android/app/src/main/AndroidManifest.xml:8',
+    impact: 'App risks rejection during Google Play Console policy review for over-privileged permissions.',
+    cause: 'ACCESS_BACKGROUND_LOCATION is declared even though the app never implements background GPS tracking.',
+    remedy: 'Remove android.permission.ACCESS_BACKGROUND_LOCATION from AndroidManifest.xml.'
+  }
+];
+
+const defectCardsHtml = defects.map(d => `
+  <div class="defect-card" data-cat="${d.cat}">
+    <div class="defect-header">
+      <div class="defect-id-title">
+        <span class="badge ${d.badge}">${d.badgeText}</span>
+        ${d.id}: ${d.title}
+      </div>
+      <span class="defect-meta">${d.file}</span>
+    </div>
+    <div class="defect-section"><strong>User Impact:</strong> ${d.impact}</div>
+    <div class="defect-section"><strong>Technical Cause:</strong> ${d.cause}</div>
+    <div class="code-box">${d.remedy.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+  </div>
+`).join('\n');
+
+const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -69,11 +582,7 @@ const htmlContent = `<!DOCTYPE html>
       margin-top: 2px;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
 
     .btn {
       padding: 8px 16px;
@@ -223,17 +732,6 @@ const htmlContent = `<!DOCTYPE html>
     th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
     th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
     tr:hover { background: #fafafa; }
-    td strong { color: #0f172a; }
-
-    .qa-card {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 14px;
-      background: white;
-    }
-    .qa-q { font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: 15px; }
-    .qa-a { color: #475569; font-size: 14px; line-height: 1.6; }
 
     .defect-controls {
       display: flex;
@@ -297,7 +795,7 @@ const htmlContent = `<!DOCTYPE html>
       padding: 2px 8px;
       border-radius: 4px;
     }
-    .defect-section { margin-top: 10px; font-size: 14px; }
+    .defect-section { margin-top: 8px; font-size: 14px; }
     .defect-section strong { color: #334155; }
     .code-box {
       background: #f8fafc;
@@ -330,18 +828,18 @@ const htmlContent = `<!DOCTYPE html>
       <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
       <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary</button>
       <button class="btn btn-primary" onclick="switchTab('testcases')">📋 Full Test Cases Matrix</button>
-      <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer</button>
+      <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer (34)</button>
     </div>
   </header>
 
   <div class="main-container">
     <div class="tab-bar">
       <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
-      <button class="tab-btn active" id="tab-btn-testcases" onclick="switchTab('testcases')">📋 Official Test Cases Matrix (Requirements 1–13)</button>
-      <button class="tab-btn" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (34 Bugs)</button>
+      <button class="tab-btn" id="tab-btn-testcases" onclick="switchTab('testcases')">📋 Official Test Cases Matrix (Requirements 1–13)</button>
+      <button class="tab-btn active" id="tab-btn-defects" onclick="switchTab('defects')">🐞 Interactive Defect Explorer (All 34 Bugs)</button>
     </div>
 
-    <!-- TAB 1: QUICK SUMMARY & INTERVIEW TALKING POINTS -->
+    <!-- TAB 1: QUICK SUMMARY & TALKING POINTS -->
     <div id="tab-summary" class="tab-content" style="display: none;">
       <div class="kpi-grid">
         <div class="kpi-card kpi-danger">
@@ -430,25 +928,13 @@ const htmlContent = `<!DOCTYPE html>
           </table>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">💡 Anticipated Interview Q&A (Practice These Answers!)</div>
-        <div class="qa-card">
-          <div class="qa-q">Q: "Why did you classify the missing Platform import as a Blocker?"</div>
-          <div class="qa-a"><strong>A:</strong> "In QA, a Blocker halts the primary user journey with zero workarounds. Because <code>Platform</code> is undefined, <code>requestLocationPermission()</code> throws an uncaught ReferenceError in <code>LoginScreen</code>. This forces the permission check to return false, blocking 100% of users from logging in. Without login, users cannot create groups, view profiles, or interact with the app."</div>
-        </div>
-        <div class="qa-card">
-          <div class="qa-q">Q: "How did you discover the StarWarsAPI search defect?"</div>
-          <div class="qa-a"><strong>A:</strong> "I examined <code>apiCallers.js</code> and noticed the host was <code>swapi.info</code>. I wrote an automated integration script to execute a live HTTPS query for <code>https://swapi.info/api/people/?search=vader</code>. The response returned an unpaginated array of all 82 characters, proving that <code>swapi.info</code> ignores search query params. The solution is to fetch once into React Query and filter client-side in JavaScript."</div>
-        </div>
-      </div>
     </div>
 
-    <!-- TAB 2: FULL TEST CASES MATRIX (OFFICIAL ASSIGNMENT REQUIREMENT) -->
-    <div id="tab-testcases" class="tab-content">
+    <!-- TAB 2: TEST CASES MATRIX -->
+    <div id="tab-testcases" class="tab-content" style="display: none;">
       <div class="card">
         <div class="card-title">📋 Official Test Cases Matrix (Requirements 1–13 Across All 5 Pillars)</div>
-        <p style="margin-bottom: 16px; color: var(--text-muted);">This is the complete structured test suite answering Section 2 of the assignment: <em>"Your test report should include: 1. Test strategy, 2. Test cases, 3. Test results, 4. Recommendations."</em></p>
+        <p style="margin-bottom: 16px; color: var(--text-muted);">This structured test suite answers Section 2 of the assignment: <em>"Your test report should include: 1. Test strategy, 2. Test cases, 3. Test results, 4. Recommendations."</em></p>
         
         <h3 style="margin: 20px 0 10px; color: var(--primary);">2.1 Functional Test Cases (Requirements 1–11 & 13)</h3>
         <div class="table-responsive">
@@ -618,131 +1104,27 @@ const htmlContent = `<!DOCTYPE html>
             </tbody>
           </table>
         </div>
-
-        <h3 style="margin: 28px 0 10px; color: var(--primary);">2.3 Security & Privacy Test Cases</h3>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 100px;">TC ID</th>
-                <th style="width: 240px;">Scenario</th>
-                <th>Expected Result</th>
-                <th>Actual Result</th>
-                <th style="width: 80px;">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>TC-SEC-01</strong></td>
-                <td>Data-at-Rest: Credential confidentiality in local storage</td>
-                <td>Passwords hashed with salt; database encrypted via Keystore.</td>
-                <td>Unencrypted MMKV database stores plaintext passwords in <code>LIST_USER</code> and <code>CURR_USER_LOGIN_DATA</code>.</td>
-                <td><span class="badge badge-critical">CRITICAL</span></td>
-              </tr>
-              <tr>
-                <td><strong>TC-SEC-02</strong></td>
-                <td>Secrets Management: Google Maps API keys</td>
-                <td>API keys injected via environment variables (.env).</td>
-                <td>Hardcoded API key <code>AIzaSyDw...</code> committed in <code>AndroidManifest.xml</code> and <code>AppDelegate.mm</code>.</td>
-                <td><span class="badge badge-high">HIGH</span></td>
-              </tr>
-              <tr>
-                <td><strong>TC-SEC-03</strong></td>
-                <td>Authorization: Member GPS location exposure</td>
-                <td>GPS coordinates hidden until user is confirmed joined member.</td>
-                <td><code>fetchGroupDetailDataRequest</code> returns GPS coordinates of all members to unjoined invitees.</td>
-                <td><span class="badge badge-critical">CRITICAL</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
 
-    <!-- TAB 3: INTERACTIVE DEFECT EXPLORER -->
-    <div id="tab-defects" class="tab-content" style="display: none;">
+    <!-- TAB 3: ALL 34 DEFECTS INTERACTIVE EXPLORER -->
+    <div id="tab-defects" class="tab-content">
       <div class="card">
-        <div class="card-title">🐞 Interactive Defect Explorer (Search & Filter)</div>
+        <div class="card-title">🐞 Interactive Defect Explorer (All 34 Verified Defects)</div>
+        <p style="margin-bottom: 16px; color: var(--text-muted);">Use the buttons or search bar below to filter through all 34 defects verified across code, linter, tests, and live API probe.</p>
         <div class="defect-controls">
           <input type="text" id="defectSearch" class="search-input" placeholder="🔍 Search defect title, file, or keyword (e.g. Platform, Login, MMKV, SWAPI)..." oninput="filterDefects()">
           <button class="filter-btn active" onclick="setFilter('all', this)">All (34)</button>
           <button class="filter-btn" onclick="setFilter('blocker', this)">Blocker / Critical (5)</button>
-          <button class="filter-btn" onclick="setFilter('functional', this)">Functional (13)</button>
+          <button class="filter-btn" onclick="setFilter('functional', this)">Functional (21)</button>
           <button class="filter-btn" onclick="setFilter('security', this)">Security (8)</button>
           <button class="filter-btn" onclick="setFilter('compat', this)">Compatibility (4)</button>
           <button class="filter-btn" onclick="setFilter('perf', this)">Performance (4)</button>
+          <button class="filter-btn" onclick="setFilter('i18n', this)">I18n / L10n (4)</button>
         </div>
 
         <div class="defect-list" id="defectList">
-          <div class="defect-card" data-cat="blocker functional">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-blocker">Blocker</span> BUG-FUNC-09: Missing Platform import completely breaks Login</div>
-              <span class="defect-meta">src/screens/LoginScreen/index.js:51</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> 100% of login attempts fail with <em>"You must allow location permission on this app to login"</em>.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>Platform.OS === 'android'</code> is called without importing <code>Platform</code> from <code>react-native</code>, triggering an uncaught <code>ReferenceError</code>.</div>
-            <div class="code-box">// Remedy: Add Platform to react-native imports in LoginScreen/index.js\nimport { View, Text, TextInput, TouchableOpacity, PermissionsAndroid, Platform, ... } from 'react-native';</div>
-          </div>
-
-          <div class="defect-card" data-cat="blocker functional">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-FUNC-21: Missing Platform import crashes app on Group Invitation</div>
-              <span class="defect-meta">src/screens/GroupHomeScreen/index.js:102</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> When an invited user (e.g. Darth Vader) logs in, the app abruptly crashes upon opening Home.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>sendPushNotification()</code> evaluates <code>Platform.OS === 'ios'</code> without importing <code>Platform</code>.</div>
-            <div class="code-box">// Remedy: Add Platform import in GroupHomeScreen/index.js\nimport { View, Text, FlatList, Image, TouchableOpacity, Platform } from 'react-native';</div>
-          </div>
-
-          <div class="defect-card" data-cat="blocker security">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-SEC-01: Plaintext password storage and comparison in MMKV</div>
-              <span class="defect-meta">src/utils/Storages.js:3 & apiServices.js:25</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Full credential theft: Passwords are saved in unencrypted plaintext in local storage.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>new MMKV()</code> has no encryption key; login validates via raw <code>===</code> equality.</div>
-            <div class="code-box">// Remedy: Hash passwords and pass encryptionKey from Keystore to MMKV:\nexport const storage = new MMKV({ id: 'starwars-secure', encryptionKey: secureKeyFromKeychain });</div>
-          </div>
-
-          <div class="defect-card" data-cat="functional">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-FUNC-13: SwapiScreen server-side ?search= query ignored by swapi.info</div>
-              <span class="defect-meta">src/screens/SwapiScreen/index.js:26</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Searching for "vader" or "falcon" does not filter results; all 82 characters are displayed.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>https://swapi.info/api/people/?search=vader</code> ignores query strings and returns the static array.</div>
-            <div class="code-box">// Remedy: Filter array client-side in JavaScript:\nconst filtered = allSwapiData.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));</div>
-          </div>
-
-          <div class="defect-card" data-cat="functional">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-FUNC-06: Missing image library / photo gallery upload option</div>
-              <span class="defect-meta">src/screens/RegisterScreen/index.js:195</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Users cannot choose an existing photo from their gallery (violating Requirement #2).</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Only <code>react-native-vision-camera</code> is implemented; no gallery picker exists.</div>
-            <div class="code-box">// Remedy: Install react-native-image-picker and provide action sheet:\nimport { launchImageLibrary } from 'react-native-image-picker';</div>
-          </div>
-
-          <div class="defect-card" data-cat="compat">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-high">High</span> BUG-COMP-01: Frozen Dimensions.get('window') breaks Landscape & Tablets</div>
-              <span class="defect-meta">src/utils/GlobalConfig.js:15-20</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Rotating device to landscape clips forms, freezes camera box, and distorts UI.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> Dimensions are frozen at boot via <code>Object.freeze(Metrics)</code>.</div>
-            <div class="code-box">// Remedy: Adopt React Native responsive hook in components:\nconst { width, height } = useWindowDimensions();</div>
-          </div>
-
-          <div class="defect-card" data-cat="security">
-            <div class="defect-header">
-              <div class="defect-id-title"><span class="badge badge-critical">Critical</span> BUG-SEC-07: Unjoined invitees can view member GPS coordinates</div>
-              <span class="defect-meta">GroupDetailScreen/index.js:141-146</span>
-            </div>
-            <div class="defect-section"><strong>User Impact:</strong> Privacy leak: An unjoined invitee can see exact GPS locations of all group members before accepting.</div>
-            <div class="defect-section"><strong>Technical Cause:</strong> <code>fetchGroupDetailDataRequest</code> returns all members' latitude/longitude regardless of viewer join status.</div>
-            <div class="code-box">// Remedy: Strip lastLocation coordinates from response unless viewer has isJoined === true.</div>
-          </div>
+          ${defectCardsHtml}
         </div>
       </div>
     </div>
@@ -765,10 +1147,12 @@ const htmlContent = `<!DOCTYPE html>
       button.classList.add('active');
 
       const cards = document.querySelectorAll('.defect-card');
+      let visibleCount = 0;
       cards.forEach(card => {
         const cats = card.getAttribute('data-cat') || '';
         if (category === 'all' || cats.includes(category)) {
           card.style.display = 'block';
+          visibleCount++;
         } else {
           card.style.display = 'none';
         }
@@ -788,5 +1172,5 @@ const htmlContent = `<!DOCTYPE html>
 </html>
 `;
 
-fs.writeFileSync(outPath, htmlContent, 'utf8');
-console.log('Successfully updated HTML dashboard with full Test Cases matrix at ' + outPath);
+fs.writeFileSync(outPath, fullHtml, 'utf8');
+console.log('Successfully generated complete dashboard with all 34 defect cards at ' + outPath);
