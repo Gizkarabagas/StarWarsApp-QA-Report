@@ -288,11 +288,23 @@
       color: #0f172a;
     }
 
+    .print-only-header { display: none; }
+
     @media print {
-      .app-header, .tab-bar, .defect-controls, .btn { display: none !important; }
-      body { background: white; font-size: 12pt; }
+      .app-header, .tab-bar, .defect-controls, #filterStatus, .btn { display: none !important; }
+      body { background: white; font-size: 11pt; color: #000; }
+      .print-only-header { display: block !important; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #0f172a; }
+      .tab-content { display: block !important; margin-bottom: 30px; }
       .main-container { max-width: 100%; margin: 0; padding: 0; }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+      .card { box-shadow: none; border: 1px solid #cbd5e1; break-inside: avoid; margin-bottom: 20px; page-break-inside: avoid; }
+      .defect-card { display: block !important; break-inside: avoid; margin-bottom: 12px; page-break-inside: avoid; }
+      .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .table-responsive { overflow: visible !important; }
+      table { width: 100%; border-collapse: collapse; }
+      tr { break-inside: avoid; page-break-inside: avoid; }
+      th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 10pt; }
+      pre, code { white-space: pre-wrap; word-break: break-all; }
+      .badge { border: 1px solid #64748b; }
     }
   </style>
 </head>
@@ -304,7 +316,7 @@
       <p>Target: <code>worlderteam/StarWarsApp</code> (commit <code>6ffa4f5</code>) • Evaluated by Junior QA Candidate</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Save Full Report as PDF</button>
       <button class="btn btn-primary" onclick="switchTab('summary')">⚡ Quick Summary</button>
       <button class="btn btn-primary" onclick="switchTab('testcases')">📋 Full Test Cases Matrix</button>
       <button class="btn btn-primary" onclick="switchTab('defects')">🐞 Defect Explorer (44)</button>
@@ -312,6 +324,15 @@
   </header>
 
   <div class="main-container">
+    <!-- PRINT ONLY HEADER -->
+    <div class="print-only-header">
+      <h1 style="font-size: 20pt; margin: 0 0 6px; color: #0f172a;">⭐ Official QA Test Report — StarWarsApp</h1>
+      <p style="font-size: 11pt; color: #475569; margin: 0 0 12px;">Candidate: Bagas Gizkara • Target: worlderteam/StarWarsApp (commit 6ffa4f5) • Date: November 2026</p>
+      <div style="padding: 10px 14px; background: #fee2e2; border-left: 5px solid #ef4444; font-weight: bold; color: #991b1b; border-radius: 4px;">
+        Release Verdict: NOT READY FOR PRODUCTION (Blocked by fatal login ReferenceError, notification crash, and unencrypted passwords)
+      </div>
+    </div>
+
     <div class="tab-bar">
       <button class="tab-btn" id="tab-btn-summary" onclick="switchTab('summary')">⚡ Quick Executive Summary & Interview Talking Points</button>
       <button class="tab-btn" id="tab-btn-testcases" onclick="switchTab('testcases')">📋 Official Test Cases Matrix (Requirements 1–13)</button>
